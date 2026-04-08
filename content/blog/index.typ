@@ -3,6 +3,8 @@
 
 = Blog
 
+
+
 == 2025 
 
 - #link("2025-10-30-normal-distribution/")[Normal Distribution]
@@ -13,4 +15,4 @@
 
 == 2024
 
-- #link("2024-10-04-iterators-generators/")[Iterators vs Generators in Python]
+- #link("rl/")[Fundamentals of Reinforcement Learning]
