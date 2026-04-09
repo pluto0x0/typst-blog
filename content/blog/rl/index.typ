@@ -131,7 +131,7 @@ $ {(s_1^((i)) , a_1^((i)) , r_1^((i)) , s_2^((i)) , dots.h , s_H^((i)) , a_H^((i
   this is called on-policy: evaluating a policy with data collected from
   the exactly same policy.
 
-  Othwise, it is off-policy. {: .prompt-info }
+  Othwise, it is off-policy.
 ]
 
 Estimator:
@@ -143,7 +143,7 @@ $ 1 / n sum_(i = 1)^n sum_(t = 1)^H gamma^(t - 1) r_t^((i)) $
   $1 - delta , \| v - J (pi) \| lt.eq frac(R_max, 1 - gamma) sqrt(frac(1, 2 n) ln 2 / delta)$
   (larger n, higher accuracy)
 
-  It is #strong[independent] to the size of state space {: .prompt-tip }
+  It is #strong[independent] to the size of state space
 ]
 
 === Comment on Monte-Carlo
@@ -159,7 +159,7 @@ efficient.
 <model-based-rl-with-a-sampling-oracle-certainty-equivalence>
 #quote(block: true)[
   Assuming the reward / probability is determined (constant) via sampling.
-  {: .prompt-info }
+ 
 ]
 
 Assume we can sample $r tilde.op R (s , a)$ and
@@ -291,7 +291,7 @@ where $alpha$ is known as learning rate, and $G_i$ as the target.
   real random variables $v_1 , v_2 , dots.h , v_n$ , the average is the
   solution of the least-square optimization problem:
 
-  $ min_v frac(1, 2 n) sum_(i = 1)^n (v - v_i)^2 $ {: .prompt-tip }
+  $ min_v frac(1, 2 n) sum_(i = 1)^n (v - v_i)^2 $
 ]
 
 === Every-visit Monte-Carlo
@@ -369,7 +369,7 @@ But in TD(0), we uses $V$ to update itself. The difference is
 "synchronous" vs "asynchronous".
 
 #quote(block: true)[
-  TD(0) is less stable {: .prompt-info }
+  TD(0) is less stable
 ]
 
 == TD( $lambda$ ): Unifying TD(0) and MC
@@ -443,7 +443,7 @@ $
     the feature vector). \> tabular value function can be interpreted as
     feature vector $in bb(R)^S$ : \>
     $\[ 0 , dots.h.c , 0 , 1 , 0 , dots.h.c , 0 \]$ where the position
-    of the $1$ indicates the state. {: .prompt-info }
+    of the $1$ indicates the state.
   ]
 
 === Example: Tetris Game
@@ -569,7 +569,7 @@ action space uniformly at random. otherwise,
 #quote(block: true)[
   When sampling s-a-r-s-a tuple along the trajectory, the first action in
   the tuple is actually generated with last version of $Q$ , so we can say
-  SARSA is not 100% "on policy". {: .prompt-info }
+  SARSA is not 100% "on policy".
 ]
 
 === Does SARSA converge to optimal policy?
@@ -624,7 +624,7 @@ $ Q arrow.l cal(T)^pi cal(T) Q $
 #quote(block: true)[
   This resulting $cal(T)^pi cal(T) dots.h.c cal(T)^pi cal(T) Q$ is also a
   optimal policy, but for another MDP, i.e.~on odd steps, follow $pi$ , on
-  even steps, free to decide. {: .prompt-info }
+  even steps, free to decide.
 ]
 
 == Q-learning with experience replay
@@ -1357,7 +1357,7 @@ $ (cal(T) f) (s) = max_(a in A) (R (s , a) + gamma E_(s' tilde.op P (dot.op divi
 
 #quote(block: true)[
   Note: the $cal(T)$ in $cal(T) Q^*$ and $cal(T) V^*$ are
-  #strong[not the same]. {: .prompt-tip }
+  #strong[not the same].
 ]
 
 == $V^*$ Iteration
@@ -1372,7 +1372,7 @@ then
 $ f_k (s) = max_(upright("all possible ") pi) bb(E) [sum_(t = 1)^k gamma^(t - 1) r_t divides s_1 = s , pi] $
 
 #quote(block: true)[
-  This is derived my the definaion of operator $cal(T)$ . {: .prompt-tip }
+  This is derived my the definaion of operator $cal(T)$ .
 ]
 
 Claim:
@@ -1437,7 +1437,7 @@ graph TD;
 ",
   )
 
-  {: .prompt-tip }
+ 
 ]
 
 To find $V^* (s)$ , update $V$ value from leaf upwards to root
@@ -1547,7 +1547,7 @@ $ arrow.r.double upright("#iteration") lt.eq \| A \|^(\| S \|) $
 
 #quote(block: true)[
   Monotone Policy improvement produces exact solutions, while value
-  iteration produces approxmitate solutions, {: .prompt-tip }
+  iteration produces approxmitate solutions,
 ]
 
 Proof of: $Q^(pi_(k + 1)) gt.eq Q^(pi_k)$
@@ -1594,7 +1594,7 @@ in policy iteration, appply greedy algo very time.
 <performance-difference-lemma-p-d-lemma>
 #quote(block: true)[
   this is a fundamental tool in RL. many deep RL models relies on this
-  lemma {: .prompt-info }
+  lemma
 ]
 
 $forall pi , pi' , s$,
