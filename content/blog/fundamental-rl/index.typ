@@ -5,7 +5,7 @@
 == example: Shortest Path
 <example-shortest-path>
 #figure(
-  image("img/reinforcement-learning-lecture-1.png", width: 100%),
+  image("img/reinforcement-learning-lecture-1.png", width: 60%),
   caption: [Shortest Path],
 )
 
@@ -14,20 +14,21 @@
 
 Greedy is not optimal.
 
-#strong[Bellman Equation] (Dynamic Programing):
+*Bellman Equation* (Dynamic Programing):
 
 $ V^* (d) = min { 3 + V^* (g) , 2 + V^* (f) } $
 
 == Stochastic Shortest Path
 <stochastic-shortest-path>
+
 Markov Decision Process (MDP)
 
 #figure(
-  image("img/reinforcement-learning-lecture-1-1.png", width: 80%),
+  image("img/reinforcement-learning-lecture-1-1.png", width: 60%),
   caption: [Stochastic Shortest Path],
 )
 
-#strong[Bellman Equation]
+*Bellman Equation*
 
 $ V^* (c) = min { 4 + 0.7 times V^* (d) + 0.3 times V^* (e) , thin 2 + V^* (e) } $
 
@@ -35,14 +36,15 @@ optimal policy : $pi^*$
 
 == Model-based RL
 <model-based-rl>
-The states are unknown. Learn by #strong[trial-and-error]
+
+The states are unknown. Learn by *trial-and-error*
 
 #figure(
-  image("img/reinforcement-learning-lecture-1-2.png", width: 80%),
+  image("img/reinforcement-learning-lecture-1-2.png", width: 60%),
   caption: [a trajectory: $s_0->c->e->F->G$],
 )
 
-Need to recover the graph by collecting multiple #strong[trajectories].
+Need to recover the graph by collecting multiple *trajectories*.
 
 Use imperial frequency to find probabilities.
 
@@ -50,30 +52,33 @@ Assume states & actions are visited uniformly.
 
 === exploration problem
 <exploration-problem>
+
 Random exploration can be inefficient:
 
 #figure(
-  image("img/reinforcement-learning-lecture-1-5.png", height: 30%),
+  image("img/reinforcement-learning-lecture-1-5.png", width: 40%),
   caption: [example: video game],
 )
 
 == example: video game
 <example-video-game>
+
 Objective: maximize the reward
 
 $
-  bb(E) [sum_(t = 1)^oo r_t divides pi] #h(0em) upright("or") #h(0em) bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t divides pi]
+  EE [sum_(t = 1)^oo r_t | pi] "or" EE [sum_(t = 1)^oo gamma^(t - 1) r_t | pi]
 $
 
 Problem: the graph is too large
 
-#box(image("img/reinforcement-learning-lecture-1-4.png"))=300x
+#box(image("img/reinforcement-learning-lecture-1-4.png"))
 
 There are states that the RL model have never seen, therefore need
-#strong[generalization]
+*generalization*
 
 === Contextual bandits
 <contextual-bandits>
+
 - Even if the algorithm is good, if mamke bad actions at beginning, will
   not get good data.
 - Keep taking bad actions (e.g.~guessing wrong label on image
@@ -83,21 +88,23 @@ There are states that the RL model have never seen, therefore need
 
 == RL steps
 <rl-steps>
+
 For round t = 1, 2, …,
 
 - For time step h=1, 2, …, H, the learner
   - Observes $x_h^((t))$
   - Chooses $a_h^((t))$
-  - Receives
-    $r_h^((t)) tilde.op R (x_h^((t)) , a_h^((t)))$
+  - Receives $r_h^((t)) ~ R (x_h^((t)) , a_h^((t)))$
   - Next $x_(h + 1)^((t))$ is generated as a function of
     $x_h^((t))$ and $a_h^((t))$ (or sometimes, all previous x's
     and a's within round t)
 
 = The Learning Setting
 <the-learning-setting>
+
 == planning and learning
 <planning-and-learning>
+
 Planning:
 
 - given MDP model, how to compute optimal policy
@@ -109,21 +116,21 @@ Learning:
 - collect data from the MDP: $(s , a , r , s')$ .
 - Data is limited. e.g., adaptive medical treatment, dialog systems
 - Go, chess, …
-- Learning can be useful #strong[even if the final goal is planning]
-  - especially when $\| S \|$ is large and/or only blackbox simulator
+- Learning can be useful *even if the final goal is planning*
+  - especially when $|S|$ is large and/or only blackbox simulator
   - e.g., AlphaGo, video game playing, simulated robotics
 
 == Monte-Carlo policy evaluation
 <monte-carlo-policy-evaluation>
+
 Given $pi$ , estimate
-$J (pi) := bb(E)_(s tilde.op d_0) [V^pi (s)]$ ( $d_0$ is initial
-state distribution) is the #emph[actual] expectation of reward.
+$J(pi) := EE_(s ~ d_0) [V^pi (s)]$
+($d_0$ is initial state distribution) is the *actual* expectation of reward.
 
 Monte-Carlo outputs some scalar $v$ \; accuracy measured by
-$\| v - J (pi) \|$ . (by sampling different trajectories):
+$|v - J (pi)|$. (by sampling different trajectories):
 
-Data: trajectories starting from $s_1 tilde.op d_0$ using $pi$ (i.e.,
-$a_t = pi (s_t)$ ).
+Data: trajectories starting from $s_1 ~ d_0$ using $pi$ (i.e., $a_t = pi (s_t)$).
 
 $ {(s_1^((i)) , a_1^((i)) , r_1^((i)) , s_2^((i)) , dots.h , s_H^((i)) , a_H^((i)) , r_H^((i)))}_(i = 1)^n $
 
@@ -140,38 +147,39 @@ $ 1 / n sum_(i = 1)^n sum_(t = 1)^H gamma^(t - 1) r_t^((i)) $
 
 #quote(block: true)[
   Guarantee: w.p. at least
-  $1 - delta , \| v - J (pi) \| lt.eq frac(R_max, 1 - gamma) sqrt(frac(1, 2 n) ln 2 / delta)$
+  $1 - delta , |v - J (pi)| <= frac(R_max, 1 - gamma) sqrt(frac(1, 2 n) ln 2 / delta)$
   (larger n, higher accuracy)
 
-  It is #strong[independent] to the size of state space
+  It is *independent* to the size of state space
 ]
 
 === Comment on Monte-Carlo
 <comment-on-monte-carlo>
+
 Monte-Carlo is a Zeroth-order (ZO) optimization method, which is not
 efficient.
 
-- #strong[first order]: gradient / first derivative (in DL/ML,
-  #strong[SDG])
-- #strong[second order]: Hessian matrix / second derivative
+- *first order*: gradient / first derivative (in DL/ML,
+  *SDG*)
+- *second order*: Hessian matrix / second derivative
 
 == Model-based RL with a sampling oracle (Certainty Equivalence)
 <model-based-rl-with-a-sampling-oracle-certainty-equivalence>
+
 #quote(block: true)[
   Assuming the reward / probability is determined (constant) via sampling.
- 
 ]
 
-Assume we can sample $r tilde.op R (s , a)$ and
-$s' tilde.op P (s , a)$ for any $(s , a)$
+Assume we can sample $r ~ R (s , a)$ and
+$s' ~ P (s , a)$ for any $(s , a)$
 
-Collect $n$ samples per
+Collect $n$ samples per $(s,a): {(r_i, s'_i)_(i=1)^n}$
 \$(s, a):\\\\{\\left(r\_i, s\_i^{\\prime}\\right)\\\\}\_{i=1}^n\$ .
 Total sample size $n \| S times A \|$
 
 Estimate an empirical MDP $hat(M)$ from data
 
-- $hat(R) (s , a) := 1 / n sum_(i = 1)^n r_i , quad hat(P) (s' divides s , a) := 1 / n sum_(i = 1)^n bb(I) [s'_i = s']$
+- $hat(R) (s , a) := 1 / n sum_(i = 1)^n r_i , quad hat(P) (s' | s , a) := 1 / n sum_(i = 1)^n bb(I) [s'_i = s']$
 - i.e., treat the empirical frequencies of states appearing in
   ${ s'_i }_(i = 1)^n$ as the true distribution.
 
@@ -185,23 +193,23 @@ extract transition tuples from trajectories.
 
 === finding policy on estimated environment
 <finding-policy-on-estimated-environment>
-#strong[true] environment: $M = (S , A , P , R , gamma)$
+*true* environment: $M = (S , A , P , R , gamma)$
 
-#strong[estimated] environment:
+*estimated* environment:
 $hat(M) = (S , A , hat(P) , hat(R) , gamma)$
 
 - notation: $pi_(hat(M)) , thin V_(hat(M)) , thin dots.h$
 
 performance measurement:
 
-- in the #strong[true] environment, use
+- in the *true* environment, use
   $parallel V^* - V^(pi_f) parallel$ where $f approx Q^*$
-- in #strong[estimated] environment, use
+- in *estimated* environment, use
   $parallel V_M^* - V_M^(pi_(hat(M))^*) parallel$ ,
   i.e.~measure the optimal policy of estimated environment in the real
   environment.
 
-== Model-based RL with a sampling oracle (Certainty Equivalence) #emph[Cont'd]
+== Model-based RL with a sampling oracle (Certainty Equivalence) *Cont'd*
 <model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd>
 To find $Q_(hat(M))^*$ with empirical $hat(R)$ and $hat(P)$ :
 
@@ -212,7 +220,7 @@ where
 \$\$
 \$\$
 
-is call the #strong[Empirical Bellman Update].
+is call the *Empirical Bellman Update*.
 
 === Computational Complexity
 <computational-complexity>
@@ -261,7 +269,7 @@ For each $s$ , roll out $n$ trajectories using policy $pi$
 - Let $hat(V)^pi (s)$ (will just write $V (s)$ ) be the average
   discounted return
 
-#strong[Online Monte-Carlo]
+*Online Monte-Carlo*
 
 - For $i = 1 , 2 , dots.h$ as the index of trajectories
   - Draw a starting state $s_i$ from the exploratory initial
@@ -299,7 +307,7 @@ where $alpha$ is known as learning rate, and $G_i$ as the target.
 Suppose we Have a continuing task. What/if we cannot set the starting
 state arbitrarily?
 
-i.e.~we have a single #strong[long] trajectory with length $N$
+i.e.~we have a single *long* trajectory with length $N$
 
 $ s_1 , a_1 , r_1 , s_2 , a_2 , r_2 , s_3 , a_3 , r_3 , dots.h $
 
@@ -335,18 +343,18 @@ $t = 1 , 2 , dots.h , V (s_t) arrow.l V (s_t) + alpha (r_t + gamma V (s_(t + 1))
 
 Same as Monte-Carlo update rule, excepts that the "target" is
 $r_t + gamma V (s_(t + 1))$ , which is similar to the
-#link("reinforcement-learning-lecture-11/#model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd")[empirical Bellman update].
+#link(<model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd>)[empirical Bellman update].
 
 Recall that in
-#link("reinforcement-learning-lecture-11/#monte-carlo-value-prediction")[Monte-Carlo],
+#link(<monte-carlo-value-prediction>)[Monte-Carlo],
 the "target" is $G_t = sum_(t' = t)^(t + H) gamma^(t' - t) r_(t')$ and
-is #strong[independent] to the current value function. While in TD(0),
+is *independent* to the current value function. While in TD(0),
 the target $r_t + gamma V (s_(t + 1))$ is dependent to the current value
 function $V$ . i.e.
 
 Compared to value iteration:
 
-$ V_(k + 1) (s) := bb(E)_(r , s' \| s , pi) [r + gamma V_k (s')] $
+$ V_(k + 1) (s) := EE_(r , s' \| s , pi) [r + gamma V_k (s')] $
 
 and the equation above is
 
@@ -391,10 +399,10 @@ With
 #link("https://en.wikipedia.org/wiki/Law_of_total_expectation")[Law of total expectation],
 
 $
-  & bb(E) \[ r_1 + gamma r_(t + 1) + gamma^2 V (s_(t + 2)) \| s_t \]\
-  = & bb(E) \[ r_t + gamma (r_(t + 1) + gamma V (s_(t r))) \| s_t \]\
-  = & bb(E) \[ r_t \] + gamma bb(E)_(s_(t + 1) \| s_t) #scale(x: 120%, y: 120%)[\[] bb(E) \[ (r_(t + 1) + gamma V (s_(t r))) \| s_t , s_(t + 1) \] #scale(x: 120%, y: 120%)[\]]\
-  = & bb(E) \[ r_t + gamma (cal(T)^pi) (s_(t + 1)) \| s_t \]\
+  & EE \[ r_1 + gamma r_(t + 1) + gamma^2 V (s_(t + 2)) \| s_t \]\
+  = & EE \[ r_t + gamma (r_(t + 1) + gamma V (s_(t r))) \| s_t \]\
+  = & EE \[ r_t \] + gamma EE_(s_(t + 1) \| s_t) #scale(x: 120%, y: 120%)[\[] EE \[ (r_(t + 1) + gamma V (s_(t r))) \| s_t , s_(t + 1) \] #scale(x: 120%, y: 120%)[\]]\
+  = & EE \[ r_t + gamma (cal(T)^pi) (s_(t + 1)) \| s_t \]\
   = & ((cal(T)^pi)^2 V) (s)
 $
 
@@ -439,7 +447,7 @@ $
     approximate
     $upright(V)^pi (upright(s)) approx theta^top phi.alt (upright(s)) + b$
     , where $theta$ should be fixed among features (in the following parts,
-    $b$ is #strong[ignored] because it can be reached by appending a $1$ to
+    $b$ is *ignored* because it can be reached by appending a $1$ to
     the feature vector). \> tabular value function can be interpreted as
     feature vector $in bb(R)^S$ : \>
     $\[ 0 , dots.h.c , 0 , 1 , 0 , dots.h.c , 0 \]$ where the position
@@ -468,13 +476,12 @@ Is a regression problem.
 
 #quote(block: true)[
   Why the expectation is the argmin? See
-  #link("./reinforcement-learning-homework-0/#notes")[here] {: .prompt-tip
-  }
+  #link("./reinforcement-learning-homework-0/#notes")[here]
 ]
 
 The same idea applies to non-linear value function approximation More
 generally & abstractly, think of function approximation as searching
-over a restricted #strong[function space], which is a set whose members
+over a restricted *function space*, which is a set whose members
 are functions that map states to real values.
 
 E.g. a function space of linear value function approximation:
@@ -521,7 +528,7 @@ $ V_(k + 1) arrow.l cal(T)^pi V_k . $
 
 i.e.
 
-$ V_(k + 1) (s) = bb(E)_pi [r + gamma V_k (s') divides s] $
+$ V_(k + 1) (s) = EE_pi [r + gamma V_k (s') | s] $
 
 Similar to Linear Approximation, #strong[rewriting expectation with a
   regression problem],
@@ -536,8 +543,8 @@ $ theta arrow.l theta + alpha (V_theta (s_t) - r_t - gamma V_k (s_(t + 1))) nabl
 Recall the Bellman Equation:
 
 $
-  (T^pi f) (s , a) & = R (s , a) + gamma bb(E)_(s' tilde.op P (k , a)) [f (s' , pi)] \
-                   & = bb(E) [r + gamma dot.op f (s' , pi) divides s , a] .
+  (T^pi f) (s , a) & = R (s , a) + gamma EE_(s' ~ P (k , a)) [f (s' , pi)] \
+                   & = EE [r + gamma dot.op f (s' , pi) | s , a] .
 $
 
 with empirically equals to:
@@ -554,7 +561,7 @@ $ Q_k (s_t , a_t) arrow.l Q_k (s_t , a_t) + alpha (r_t + gamma Q_(k - 1) (s_(t +
 $ Q (s_t , a_t) arrow.l Q (s_t , a_t) + alpha (r_t + gamma Q (s_t + 1 , a_t + 1) - Q (s_t , a_t)) $
 
 Notice that SARSA is not applicable for deterministic policy, because it
-requires a non-zero probability distribution over #strong[all]
+requires a non-zero probability distribution over *all*
 st0ate-action pairs ( $forall (s , a) in S times A$ ), but the only
 possible action for a certain state is determined by the policy.
 
@@ -651,7 +658,7 @@ Not applicable for on-policy controls (e.g.~SARSA).
 
 == A Question
 <a-question>
-$bb(E)_(s , r , s') [(V_theta (s) - r - gamma V_theta (s'))^2]$
+$EE_(s , r , s') [(V_theta (s) - r - gamma V_theta (s'))^2]$
 
 We do
 $V_theta (s) arrow.l V_theta (s) + alpha (r - gamma V_theta (s') - V_theta (s))$
@@ -659,16 +666,16 @@ in TD(0).
 
 What if we minimize the square error between $V_theta (s)$ and its
 target,
-i.e.~$bb(E)_(s , r , s') [(V_theta (s) - r - gamma V_theta (s'))^2]$
+i.e.~$EE_(s , r , s') [(V_theta (s) - r - gamma V_theta (s'))^2]$
 ?
 
 No correct. It can be
 #link("./reinforcement-learning-homework-0/#proof")[decomposed] as the
 sum of 2 parts:
 
-- $bb(E)_s [(V_theta (s) - (cal(T)^pi V_theta) (s))^2]$
+- $EE_s [(V_theta (s) - (cal(T)^pi V_theta) (s))^2]$
   - good. It's L-2 norm Bellman Error.
-- $gamma^2 bb(E)_s ["Var"_(s' divides s , pi (s)) [V_theta (s')]]$
+- $gamma^2 EE_s ["Var"_(s' | s , pi (s)) [V_theta (s')]]$
   - Not good. It penalize policy with large variance.
   - OK for deterministic environment because the variance is always $0$
     in this case.
@@ -680,7 +687,7 @@ state transition.
 
 Minimize objective
 
-$ bb(E) \[(V_theta (s) - r - gamma V_theta (s'_A)) lr((V_theta (s) - r - gamma V_theta (s'_B)]) $
+$ EE \[(V_theta (s) - r - gamma V_theta (s'_A)) lr((V_theta (s) - r - gamma V_theta (s'_B)]) $
 
 "Double sampling" and Baird's residual algorithm (Bellman residual
 minimization).
@@ -746,8 +753,8 @@ Assume the function space has to possible values at each state:
   kind: table,
 )
 
-\(0.5 and #strong[0.502] have the same distance to #strong[0.501]\; 0.5
-and #strong[0.504] have the same distance to #strong[0.502]\;…)
+\(0.5 and *0.502* have the same distance to *0.501*\; 0.5
+and *0.504* have the same distance to *0.502*\;…)
 
 then
 
@@ -767,14 +774,14 @@ then
 
 Value deviates from 0.501 as iteration goes.
 
-Say the function space is a #strong[plane], than the results of each
+Say the function space is a *plane*, than the results of each
 iteration (bellman operator) is not on the plane, instead, their
-#strong[projections] are picked.
+*projections* are picked.
 
 == Importance Sampling
 <importance-sampling>
-We can only sample $x tilde.op q$ but want to estimate
-$bb(E)_(x tilde.op p) f (x)$
+We can only sample $x ~ q$ but want to estimate
+$EE_(x ~ p) f (x)$
 
 Importance Sampling (or importance weighted, or inverse propensity
 yscore Ps estimator):
@@ -784,7 +791,7 @@ $ frac(p (x), q (x)) f (x) $
 Unbiasedness:
 
 $
-  bb(E)_(x tilde.op q) [frac(p (x), q (x)) f (x)] = sum_x q (x) (frac(p (x), q (x)) f (x)) = sum_x p (x) f (x) = bb(E)_(x tilde.op p) \[ f (x) \]
+  EE_(x ~ q) [frac(p (x), q (x)) f (x)] = sum_x q (x) (frac(p (x), q (x)) f (x)) = sum_x p (x) f (x) = EE_(x ~ p) \[ f (x) \]
 $
 
 == Application in contextual bandit (CB)
@@ -792,26 +799,26 @@ $
 - The data point is a tuple $(x , a , r)$
 - The function of interest is $(x , a , r) mapsto r$
 - The distribution of interest is
-  $x tilde.op d_0 , a tilde.op pi , r tilde.op R (x , a)$
+  $x ~ d_0 , a ~ pi , r ~ R (x , a)$
   - Let the joint density be $p (x , a , r)$
 - The data distribution is
-  $x tilde.op d_0 , a tilde.op pi_b , r tilde.op R (x , a)$
+  $x ~ d_0 , a ~ pi_b , r ~ R (x , a)$
   - Let the joint density be $q (x , a , r)$
 - IS estimator:
   $frac(p (x , a , r), q (x , a , r)) dot.op r$
 - Write down the densities
-  - $p (x , a , r) = d_0 (x) dot.op pi (a divides x) dot.op R (r divides x , a)$
-  - $q (x , a , r) = d_0 (x) dot.op pi_b (a divides x) dot.op R (r divides x , a)$
+  - $p (x , a , r) = d_0 (x) dot.op pi (a | x) dot.op R (r | x , a)$
+  - $q (x , a , r) = d_0 (x) dot.op pi_b (a | x) dot.op R (r | x , a)$
   - To compute importance weight, you don't need knowledge of $mu$ or
-    $R$ ! You just need $pi_b$ (or even just $pi_b (a divides x)$ ,
+    $R$ ! You just need $pi_b$ (or even just $pi_b (a | x)$ ,
     "proposal prob.")
-- Let $rho$ be a shorthand for $pi (a divides x)$ , so estimator is
+- Let $rho$ be a shorthand for $pi (a | x)$ , so estimator is
   $rho dot.op r$
 - $pi_b$ need to "cover" $pi$
-  - i.e., whenever $pi (a divides x) > 0$ , we need\$ \_b(a x)\>0\$
+  - i.e., whenever $pi (a | x) > 0$ , we need\$ \_b(a x)\>0\$
 - A special case:
   - $pi$ is deterministic, and $pi_b$ is uniformly random
-    $(pi_b (a divides x) equiv 1 \/ \| A \|)$
+    $(pi_b (a | x) equiv 1 \/ \| A \|)$
   - $frac(bb(I) \[ a = pi (x) \], 1 \/ \| A \|) r$
     - only look at actions that match what $pi$ wants to take and
       discard other data points
@@ -838,7 +845,7 @@ $
   & = frac(1, n \/ \| A \|) sum_(i : a^((i)) = pi (x^((i)))) r^((i))
 $
 
-Because $n \/ \| A \|$ is the #strong[expectaton] of \# of sampling
+Because $n \/ \| A \|$ is the *expectaton* of \# of sampling
 $a^((i))$ matches $pi$ but not the true \# of matched samples, which
 causes variance.
 
@@ -848,13 +855,13 @@ $ frac(1, \| { i : a^((i)) = pi^((i)) } \|) sum_(a^((i)) = pi^((i))) r_i $
 
 == Multi-step IS in MDPs
 <multi-step-is-in-mdps>
-- Data: trajectories starting from $s_1 tilde.op d_0$ using $pi_b$
-  (i.e., $a_t tilde.op pi_b (s_t)$ ) (for simplicity, assume process
+- Data: trajectories starting from $s_1 ~ d_0$ using $pi_b$
+  (i.e., $a_t ~ pi_b (s_t)$ ) (for simplicity, assume process
   terminates in $H$ time steps)
 
 $ {(s_1^((i)) , a_1^((i)) , r_1^((i)) , s_2^((i)) , dots.h , s_H^((i)) , a_H^((i)) , r_H^((i)))}_(i = 1)^n $
 
-- Want to estimate $J (pi) := bb(E)_(s tilde.op d_0) [V^pi (s)]$
+- Want to estimate $J (pi) := EE_(s ~ d_0) [V^pi (s)]$
 - Same idea as in bandit: apply IS to the entire trajectory
 
 \===
@@ -868,18 +875,18 @@ $ {(s_1^((i)) , a_1^((i)) , r_1^((i)) , s_2^((i)) , dots.h , s_H^((i)) , a_H^((i
 
 How to compute $p (tau) \/ q (tau)$ ?
 
-- $p (tau) = d_0 (s_1) dot.op pi (a_1 divides s_1) dot.op P (s_2 divides s_1 , a_1) dot.op pi (a_2 divides s_2) dots.h.c P (s_H divides s_(H - 1) , a_(H - 1)) dot.op pi (a_H divides s_H)$
-- $q (tau) = d_0 (s_1) dot.op pi_b (a_1 divides s_1) dot.op P (s_2 divides s_1 , a_1) dot.op pi_b (a_2 divides s_2) dots.h.c P (s_H divides s_(H - 1) , a_(H - 1)) dot.op pi_b (a_H divides s_H)$
+- $p (tau) = d_0 (s_1) dot.op pi (a_1 | s_1) dot.op P (s_2 | s_1 , a_1) dot.op pi (a_2 | s_2) dots.h.c P (s_H | s_(H - 1) , a_(H - 1)) dot.op pi (a_H | s_H)$
+- $q (tau) = d_0 (s_1) dot.op pi_b (a_1 | s_1) dot.op P (s_2 | s_1 , a_1) dot.op pi_b (a_2 | s_2) dots.h.c P (s_H | s_(H - 1) , a_(H - 1)) dot.op pi_b (a_H | s_H)$
 
 Here all $P (dot.op \| dot.op)$ terms are cancelled out.
 
-Let $rho_t = frac(pi (d_t divides s_t), pi_b (a_t divides s_t))$ , then
+Let $rho_t = frac(pi (d_t | s_t), pi_b (a_t | s_t))$ , then
 $frac(p (tau), q (tau)) = product_(t = 1)^H rho_t = : rho_(1 : H)$
 
 === Examine the special case again
 <examine-the-special-case-again>
 - $pi$ is deterministic, and $pi_b$ is uniformly random
-  $(pi_b (a divides x) equiv 1 \/ \| A \|)$
+  $(pi_b (a | x) equiv 1 \/ \| A \|)$
 - $rho_t = frac(bb(I) [a_t = pi (s_t)], 1 \/ \| A \|)$
 - only look at trajectories where all actions happen to match what $pi$
   wants to take
@@ -889,7 +896,7 @@ $frac(p (tau), q (tau)) = product_(t = 1)^H rho_t = : rho_(1 : H)$
 == Policy Gradient
 <policy-gradient>
 Given policy $pi_theta$, optimize
-$J (pi_theta) := bb(E)_(s tilde.op d_0) [med V^(pi_theta) (s)]$
+$J (pi_theta) := EE_(s ~ d_0) [med V^(pi_theta) (s)]$
 where $d_0$ is the initial state distribution.
 
 - Use Gradient Ascent ($nabla_theta J (pi_theta)$)
@@ -930,10 +937,10 @@ with temperature $T$. But in PG, we don't need it. Why?
 <pg-derivation>
 - The trajectory inducded by $pi$:
   $tau := (s_1 , a_1 , r_1 , dots.h , s_H , a_H , r_H)$ and
-  $tau tilde.op pi$.
+  $tau ~ pi$.
 - Let $R (tau) := sum_(t = 1)^H gamma^(t - 1) r_t$
 
-$ J (pi) := bb(E)_pi [sum_(t = 1)^H gamma^(t - 1) r_t] = bb(E)_(tau tilde.op pi) \[ R (tau) \] $
+$ J (pi) := EE_pi [sum_(t = 1)^H gamma^(t - 1) r_t] = EE_(tau ~ pi) \[ R (tau) \] $
 
 $
     & nabla J (pi) \
@@ -941,7 +948,7 @@ $
   = & sum_tau (nabla P^pi (tau)) R (tau) \
   = & sum_tau frac(P^pi (tau), P^pi (tau)) nabla P^pi (tau) R (tau) \
   = & sum_tau P^pi (tau) nabla log P^pi (tau) R (tau) \
-  = & bb(E)_(tau tilde.op pi) [nabla log P^pi (tau) R (tau)]
+  = & EE_(tau ~ pi) [nabla log P^pi (tau) R (tau)]
 $
 
 and
@@ -963,38 +970,38 @@ $
   & nabla log pi (a \| s)\
   = & nabla (log (e^(theta^top phi.alt (s , a'))) - log (sum_(a') e^(theta^top phi.alt (s , a'))))\
   = & phi.alt (s , a) - frac(sum_(a') e^(theta^top phi.alt (s , a')) phi.alt (s , a'), sum_(a') e^(theta^top phi.alt (s , a')))\
-  = & phi.alt (s , a) - bb(E)_(a' tilde.op pi) \[ phi.alt (s , a') \]
+  = & phi.alt (s , a) - EE_(a' ~ pi) \[ phi.alt (s , a') \]
 $
 
 Note that the expectation of the quantity above is $0$. i.e.
 
 $
-  bb(E)_(a tilde.op pi) #scale(x: 120%, y: 120%)[\[] phi.alt (s , a) - bb(E)_(a' tilde.op pi) \[ phi.alt (s , a') \] #scale(x: 120%, y: 120%)[\]] = 0
+  EE_(a ~ pi) #scale(x: 120%, y: 120%)[\[] phi.alt (s , a) - EE_(a' ~ pi) \[ phi.alt (s , a') \] #scale(x: 120%, y: 120%)[\]] = 0
 $
 
-#strong[Couclusion]:
+*Couclusion*:
 
 So far we have
 
-$ nabla J (pi) = bb(E)_pi [(sum_(t = 1)^H gamma^(t - 1) r_t) (sum_(t = 1)^H nabla log pi (a_t \| s_t))] $
+$ nabla J (pi) = EE_pi [(sum_(t = 1)^H gamma^(t - 1) r_t) (sum_(t = 1)^H nabla log pi (a_t \| s_t))] $
 
 With the relation discussed above, we say
-$bb(E)_pi \[ nabla log pi (a_t \| s_t) \] = sum_(a_t) nabla pi (a_t \| s_t) = nabla 1 = 0$
+$EE_pi \[ nabla log pi (a_t \| s_t) \] = sum_(a_t) nabla pi (a_t \| s_t) = nabla 1 = 0$
 
 So, for $t' < t$, $r_(t')$ is independent to
 $nabla log pi (a_t \| s_t)$, we have
 
-$ bb(E)_pi \[ nabla log pi (a_t \| s_t) r_(t') \] = bb(E)_pi \[ nabla log pi (a_t \| s_t) \] bb(E)_pi \[ r_(t') \] = 0 $
+$ EE_pi \[ nabla log pi (a_t \| s_t) r_(t') \] = EE_pi \[ nabla log pi (a_t \| s_t) \] EE_pi \[ r_(t') \] = 0 $
 
 We can therefore rewrite the $nabla J (pi)$ as
 
-$ nabla J (pi) = bb(E)_pi [sum_(t = 1)^H (nabla log pi (a_t \| s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] $
+$ nabla J (pi) = EE_pi [sum_(t = 1)^H (nabla log pi (a_t \| s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] $
 
 === PG and Value-Based Method
 <pg-and-value-based-method>
 So far we have
 
-$ nabla J (pi) = bb(E)_pi [sum_(t = 1)^H (nabla log pi (a_t \| s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] . $
+$ nabla J (pi) = EE_pi [sum_(t = 1)^H (nabla log pi (a_t \| s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] . $
 
 add a condition on expectation:
 
@@ -1010,8 +1017,8 @@ Q\(S\_t, A\_t) Q\(S\_t, A\_t)+-Q\(S\_t, A\_t)\] \$.
 
 ==== Actor-critic
 <actor-critic>
-The parametrized #strong[policy] is called the #emph[actor], and the
-#strong[value-function] estimate is called the #emph[critic].
+The parametrized *policy* is called the *actor*, and the
+*value-function* estimate is called the *critic*.
 
 // #figure(image("https://www.researchgate.net/profile/Nikolas-Wilhelm/publication/344770842/figure/fig1/AS:948651484516356@1603187547778/Taxonomy-of-model-free-RL-algorithms-by-Schulman-43.png"),
 //   caption: [
@@ -1024,25 +1031,25 @@ The parametrized #strong[policy] is called the #emph[actor], and the
 for any $f : S arrow.r bb(R)$,
 
 $
-  nabla J (pi) = frac(1, 1 - gamma) bb(E)_(s tilde.op d^pi , a tilde.op pi (s)) [(Q^pi (s , a) - f (s)) nabla log pi (a \| s)]
+  nabla J (pi) = frac(1, 1 - gamma) EE_(s ~ d^pi , a ~ pi (s)) [(Q^pi (s , a) - f (s)) nabla log pi (a \| s)]
 $
 
 because $f (s)$ and $nabla log pi (s \| a)$ are
-#strong[independent].
+*independent*.
 
 Choose $f = V^pi (s)$ and
 
 $
-  nabla J (pi) = frac(1, 1 - gamma) bb(E)_(s tilde.op d^pi , a tilde.op pi (s)) [A^pi (s , a) nabla log pi (a divides s)]
+  nabla J (pi) = frac(1, 1 - gamma) EE_(s ~ d^pi , a ~ pi (s)) [A^pi (s , a) nabla log pi (a | s)]
 $
 
 where $A$ is the advantage function. Bseline don't change the
-#strong[expectation] of Gradient but lower the #strong[variance].
+*expectation* of Gradient but lower the *variance*.
 
 == Policy Gradient
 <policy-gradient-1>
 Given policy $pi_theta$, optimize
-$J (pi_theta) := bb(E)_(s tilde.op d_0) [med V^(pi_theta) (s)]$
+$J (pi_theta) := EE_(s ~ d_0) [med V^(pi_theta) (s)]$
 where $d_0$ is the initial state distribution.
 
 - Use Gradient Ascent ($nabla_theta J (pi_theta)$)
@@ -1069,21 +1076,21 @@ About PG:
 <infinite-horizon-discounted-mdps>
 An MDP $M = (S , A , P , R , gamma)$ consists of:
 
-- #strong[State space] $S$ .
-- #strong[Action space] $A$ .
-- #strong[Transition function] $P$ : $S times A arrow.r Delta (S)$ .
-  $Delta (S)$ is the #strong[probability] simplex over $S$ , i.e.,
+- *State space* $S$ .
+- *Action space* $A$ .
+- *Transition function* $P$ : $S times A arrow.r Delta (S)$ .
+  $Delta (S)$ is the *probability* simplex over $S$ , i.e.,
   all non-negative vectors of length $\| S \|$ that sums up to $1$ .
-- #strong[Reward function] $R$ : $S times A arrow.r bb(R)$ .
+- *Reward function* $R$ : $S times A arrow.r bb(R)$ .
   (deterministic reward function)
-- #strong[Discount factor] $gamma in \[ 0 , 1 \]$
+- *Discount factor* $gamma in \[ 0 , 1 \]$
 
 The agent
 
 + starts in some state $s_1$
 + takes action $a_1$
 + receives reward $r_1 = R (s_1 , a_1)$
-+ transitions to $s_2 tilde.op P (s_1 , a_1)$
++ transitions to $s_2 ~ P (s_1 , a_1)$
 + takes action $a_2$
 + … and so on so forth �?the process continues forever.
 
@@ -1093,7 +1100,7 @@ Objective: (discounted) expected total reward
 
 == Example: Gridworld
 <example-gridworld>
-#box(image("img/reinforcement-learning-lecture-2.png"))=300x
+#box(image("img/reinforcement-learning-lecture-2.png"))
 
 - State: grid x, y
 - Action: N, S, E, W
@@ -1121,34 +1128,34 @@ For $gamma < 1$ , the total reward is finite.
 <value-and-policy>
 Take action that maximize
 
-$ bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t] $
+$ EE [sum_(t = 1)^oo gamma^(t - 1) r_t] $
 
 assume $r_t in \[ 0 , R_max \]$ ,
 
-$ bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t] in [0 , frac(R_max, 1 - gamma)] . $
+$ EE [sum_(t = 1)^oo gamma^(t - 1) r_t] in [0 , frac(R_max, 1 - gamma)] . $
 
-A #strong[policy] describes how the agent acts at a state:
+A *policy* describes how the agent acts at a state:
 
 $ a_t = pi (s_t) $
 
 define value funtion
 
-$ V^pi (s) = bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi] $
+$ V^pi (s) = EE [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi] $
 
 == Bellman Equation
 <bellman-equation>
 $
-  V^pi (s) & = bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi] \
+  V^pi (s) & = EE [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi] \
            & = R (s , pi (s)) + gamma ⟨P (dot.op mid(bar.v) s , pi (s)) , V^pi (dot.op)⟩
 $
 
 Detailed steps
 $
-  V^pi (s) & = bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi]\
-  & = bb(E) [r_1 + sum_(t = 2)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi]\
-  & = R (s , pi (s)) + sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) bb(E) [gamma sum_(t = 2)^oo gamma^(t - 2) r_t mid(bar.v) s_1 = s , s_2 = s' , pi]\
-  & = R (s , pi (s)) + sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) bb(E) [gamma sum_(t = 2)^oo gamma^(t - 2) r_t mid(bar.v) s_2 = s' , pi]\
-  & = R (s , pi (s)) + gamma sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s' , pi]\
+  V^pi (s) & = EE [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi]\
+  & = EE [r_1 + sum_(t = 2)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s , pi]\
+  & = R (s , pi (s)) + sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) EE [gamma sum_(t = 2)^oo gamma^(t - 2) r_t mid(bar.v) s_1 = s , s_2 = s' , pi]\
+  & = R (s , pi (s)) + sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) EE [gamma sum_(t = 2)^oo gamma^(t - 2) r_t mid(bar.v) s_2 = s' , pi]\
+  & = R (s , pi (s)) + gamma sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) EE [sum_(t = 1)^oo gamma^(t - 1) r_t mid(bar.v) s_1 = s' , pi]\
   & = R (s , pi (s)) + gamma sum_(s' in cal(S)) P (s' mid(bar.v) s , pi (s)) V^pi (s')\
   & = R (s , pi (s)) + gamma ⟨P (dot.op mid(bar.v) s , pi (s)) , V^pi (dot.op)⟩
 $
@@ -1178,17 +1185,17 @@ then
 $
         & parallel (I - gamma P^pi) x parallel_oo \
       = & parallel x - gamma P^pi x parallel_oo \
-  gt.eq & parallel x parallel_oo - gamma parallel P^pi x parallel_oo \
-  gt.eq & parallel x parallel_oo - gamma parallel x parallel_oo \
+  >= & parallel x parallel_oo - gamma parallel P^pi x parallel_oo \
+  >= & parallel x parallel_oo - gamma parallel x parallel_oo \
       = & (1 - gamma) parallel x parallel_oo \
-  gt.eq & parallel x parallel_oo \
+  >= & parallel x parallel_oo \
       > & 0 square.filled.medium
 $
 
 == Generalize to stochastic policies
 <generalize-to-stochastic-policies>
 $
-  V^pi (s) = bb(E)_(a tilde.op pi (dot.op divides s) , s' tilde.op P (dot.op divides s , a)) [R (s , a) + gamma V^pi (s')]
+  V^pi (s) = EE_(a ~ pi (dot.op | s) , s' ~ P (dot.op | s , a)) [R (s , a) + gamma V^pi (s')]
 $
 
 === Matrix form
@@ -1198,8 +1205,8 @@ $ V^pi = R^pi + gamma P^pi V^pi $
 still holds for
 
 $
-  & R^pi (s) = bb(E)_(a tilde.op pi (dot.op divides s)) \[ R (s , a) \] \
-  & P^pi (s' divides s) = sum_(a in cal(A)) pi (a divides s) P (s' divides s , a)
+  & R^pi (s) = EE_(a ~ pi (dot.op | s)) \[ R (s , a) \] \
+  & P^pi (s' | s) = sum_(a in cal(A)) pi (a | s) P (s' | s , a)
 $
 
 == Optimality
@@ -1243,20 +1250,20 @@ precisely $H$ steps
 
 $
   V_(H + 1)^pi equiv 0\
-  V_h^pi (s) = R (s , pi (s)) + bb(E)_(s' tilde.op P (s , a)) \[ V_(h + 1)^pi (s') \]
+  V_h^pi (s) = R (s , pi (s)) + EE_(s' ~ P (s , a)) \[ V_(h + 1)^pi (s') \]
 $
 
 Recall $V^* , Q^* , V^pi , Q^pi$ .
 
 $
-  V^* (s) = max_(a in A) (underbrace(R (s , a) + gamma bb(E)_(S' tilde.op P (dot.op divides s , a)) [V^* (s')], Q^* (s , a)))
+  V^* (s) = max_(a in A) (underbrace(R (s , a) + gamma EE_(S' ~ P (dot.op | s , a)) [V^* (s')], Q^* (s , a)))
 $
 
 == Bellman Operator
 <bellman-operator>
 $
   forall f : S times A arrow.r bb(R) ,\
-  (cal(T) f) (s , a) = (R (s , a) + gamma bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ max_(a') f (s' , a') \])\
+  (cal(T) f) (s , a) = (R (s , a) + gamma EE_(s' ~ P (dot.op \| s , a)) \[ max_(a') f (s' , a') \])\
   upright("where") #h(0em) cal(T) : bb(R)^(S A) arrow.r bb(R)^(S A) .
 $
 
@@ -1289,13 +1296,13 @@ $ forall s , a : #h(0em) f_1 (s , a) arrow.l cal(T) f_0 (s , a) $
 
 == Convergence of VI
 <convergence-of-vi>
-lemma: $cal(T)$ is a $gamma$ #strong[\-contraction] under
+lemma: $cal(T)$ is a $gamma$ *\-contraction* under
 $parallel dot.op parallel_oo$ where
 $parallel dot.op parallel_oo := max_(x in (dot.op)) x$ .
 
 which means
 
-$ parallel cal(T) f - cal(T) f' parallel_oo lt.eq gamma parallel f - f' parallel_oo $
+$ parallel cal(T) f - cal(T) f' parallel_oo <= gamma parallel f - f' parallel_oo $
 
 Proof.
 
@@ -1303,11 +1310,11 @@ $
                            & parallel f_k - Q^* parallel_oo \
                          = & parallel cal(T) f_(k - 1) - Q^* parallel_oo \
                          = & parallel cal(T) f_(k - 1) - cal(T) Q^* parallel_oo \
-  lt.eq^(upright("lemma")) & gamma parallel f_(k - 1) - Q^* parallel_oo \
+  <=^(upright("lemma")) & gamma parallel f_(k - 1) - Q^* parallel_oo \
 $
 
 $
-  arrow.r.double parallel f_k - Q^* parallel_oo lt.eq gamma^k parallel f_(k - 1) - Q^* parallel_oo #h(0em) upright("where") #h(0em) gamma in (0 , 1) square.filled.medium
+  arrow.r.double parallel f_k - Q^* parallel_oo <= gamma^k parallel f_(k - 1) - Q^* parallel_oo #h(0em) upright("where") #h(0em) gamma in (0 , 1) square.filled.medium
 $
 
 Proof of lemma:
@@ -1316,19 +1323,19 @@ It suffies to prove
 
 $
   & lr(|(cal(T) f - cal(T) f') (s , a)|)\
-  = & lr(|(R (s , a) + gamma bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ max_(a') f (s' , a') \]) - (R (s , a) + gamma bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ max_(a') f (s' , a') \])|)\
-  = & gamma lr(|bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ max_(a') f (s' , a') - max_(a') f' (s' , a') \]|)
+  = & lr(|(R (s , a) + gamma EE_(s' ~ P (dot.op \| s , a)) \[ max_(a') f (s' , a') \]) - (R (s , a) + gamma EE_(s' ~ P (dot.op \| s , a)) \[ max_(a') f (s' , a') \])|)\
+  = & gamma lr(|EE_(s' ~ P (dot.op \| s , a)) \[ max_(a') f (s' , a') - max_(a') f' (s' , a') \]|)
 $
 
-\$ $a s s u m e ,$ #emph[{a'} f(s', a') \> ]{a'} f'(s', a') $a n d$ a^:
+\$ $a s s u m e ,$ *{a'} f(s', a') \> *{a'} f'(s', a') $a n d$ a^:
 \_af(s',a)=f(s',a^)\$, then
 
 $
-        & gamma lr(|bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ max_(a') f (s' , a') - max_(a') f' (s' , a') \]|) \
-      = & gamma lr(|bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ f (s' , a^*) - max_(a') f' (s' , a') \]|) \
-  lt.eq & gamma lr(|bb(E)_(s' tilde.op P (dot.op \| s , a)) \[ f (s' , a^*) - f' (s' , a^*) \]|) \
-  lt.eq & gamma lr(|f (s' , a^*) - f' (s' , a^*)|) \
-  lt.eq & gamma parallel f - f' parallel_oo
+        & gamma lr(|EE_(s' ~ P (dot.op \| s , a)) \[ max_(a') f (s' , a') - max_(a') f' (s' , a') \]|) \
+      = & gamma lr(|EE_(s' ~ P (dot.op \| s , a)) \[ f (s' , a^*) - max_(a') f' (s' , a') \]|) \
+  <= & gamma lr(|EE_(s' ~ P (dot.op \| s , a)) \[ f (s' , a^*) - f' (s' , a^*) \]|) \
+  <= & gamma lr(|f (s' , a^*) - f' (s' , a^*)|) \
+  <= & gamma parallel f - f' parallel_oo
 $
 
 greedy policy:
@@ -1349,15 +1356,15 @@ define
 
 Claim:
 
-$ parallel V^* - V^(pi_f) parallel lt.eq frac(2 parallel f - Q^* \| \|_oo, 1 - gamma) $
+$ parallel V^* - V^(pi_f) parallel <= frac(2 parallel f - Q^* \| \|_oo, 1 - gamma) $
 
 define operator $cal(T)$ :
 
-$ (cal(T) f) (s) = max_(a in A) (R (s , a) + gamma E_(s' tilde.op P (dot.op divides s , A)) [f (s')]) $
+$ (cal(T) f) (s) = max_(a in A) (R (s , a) + gamma E_(s' ~ P (dot.op | s , A)) [f (s')]) $
 
 #quote(block: true)[
   Note: the $cal(T)$ in $cal(T) Q^*$ and $cal(T) V^*$ are
-  #strong[not the same].
+  *not the same*.
 ]
 
 == $V^*$ Iteration
@@ -1369,7 +1376,7 @@ $
 
 then
 
-$ f_k (s) = max_(upright("all possible ") pi) bb(E) [sum_(t = 1)^k gamma^(t - 1) r_t divides s_1 = s , pi] $
+$ f_k (s) = max_(upright("all possible ") pi) EE [sum_(t = 1)^k gamma^(t - 1) r_t | s_1 = s , pi] $
 
 #quote(block: true)[
   This is derived my the definaion of operator $cal(T)$ .
@@ -1379,20 +1386,19 @@ Claim:
 
 $ parallel f_k - V^* parallel lt.tilde gamma^k $
 
-step 1: $f_k lt.eq V^*$
+step 1: $f_k <= V^*$
 
 step 2:
 
 $
-  f_k gt.eq & #box(stroke: black, inset: 3pt, [$ bb(E) [sum_(t = 1)^oo gamma^(t - 1) r_t divides s_1 = s , pi^*] $]) - bb(E) [sum_(t = k + 1)^oo gamma^(t - 1) r_t divides s_1 = s , pi^*]\
-  gt.eq & #box(stroke: black, inset: 3pt, [$ V^* $]) - r^k V_max square.filled.medium
+  f_k >= & #box(stroke: black, inset: 3pt, [$ EE [sum_(t = 1)^oo gamma^(t - 1) r_t | s_1 = s , pi^*] $]) - EE [sum_(t = k + 1)^oo gamma^(t - 1) r_t | s_1 = s , pi^*]\
+  >= & #box(stroke: black, inset: 3pt, [$ V^* $]) - r^k V_max square.filled.medium
 $
 
 c
 
 #quote(block: true)[
-  this means, once reached goal $pi^*$ , never leave. {: .prompt-tip
-  }
+  this means, once reached goal $pi^*$ , never leave.
 ]
 
 == example
@@ -1539,28 +1545,28 @@ Also, the policy updates upwards.
 
 == Monotone Policy improvement
 <monotone-policy-improvement>
-$ forall k , forall s : V^(pi_k) gt.eq V^(pi_(k - 1)) $
+$ forall k , forall s : V^(pi_k) >= V^(pi_(k - 1)) $
 
 $ upright(" if ") pi_(k - 1) eq.not pi^* , exists s : v^(pi_k) (s) > V^(pi_(k - 1)) (s) $
 
-$ arrow.r.double upright("#iteration") lt.eq \| A \|^(\| S \|) $
+$ arrow.r.double upright("#iteration") <= \| A \|^(\| S \|) $
 
 #quote(block: true)[
   Monotone Policy improvement produces exact solutions, while value
   iteration produces approxmitate solutions,
 ]
 
-Proof of: $Q^(pi_(k + 1)) gt.eq Q^(pi_k)$
+Proof of: $Q^(pi_(k + 1)) >= Q^(pi_k)$
 
 lemma 1:
 
-$ Q^(pi_k) = cal(T)^(pi_k) Q^(pi_k) lt.eq cal(T) Q^(pi_k) $
+$ Q^(pi_k) = cal(T)^(pi_k) Q^(pi_k) <= cal(T) Q^(pi_k) $
 
 beacuse
 
 $
-        & (cal(T)^pi f) (s , a) = R (s , a) + gamma bb(E)_(s' tilde.op p (dot.op divides s , a)) [f (s' , pi)] \
-  lt.eq & (cal(T) f) (s , a) = R (s , a) + gamma bb(E)_(s' tilde.op p (dot.op divides s , a)) [max_(a') f (s' , a')]
+        & (cal(T)^pi f) (s , a) = R (s , a) + gamma EE_(s' ~ p (dot.op | s , a)) [f (s' , pi)] \
+  <= & (cal(T) f) (s , a) = R (s , a) + gamma EE_(s' ~ p (dot.op | s , a)) [max_(a') f (s' , a')]
 $
 
 lemma 2:
@@ -1569,15 +1575,15 @@ $ cal(T) Q^(pi_k) = cal(T)^(pi_(k + 1)) Q^(pi_k) $
 
 lemma 3:
 
-$ forall f gt.eq f' , #h(0em) cal(T)^pi f gt.eq cal(T)^pi f' $
+$ forall f >= f' , #h(0em) cal(T)^pi f >= cal(T)^pi f' $
 
 with lemma 1,2,3,
 
 $
-  Q^(pi_k) & lt.eq #box(stroke: black, inset: 3pt, [$ cal(T)^(pi_(k + 1)) Q^(pi_k) $])\
-  arrow.r.double #box(stroke: black, inset: 3pt, [$ cal(T)^(pi_(k + 1)) Q^(pi_k) $]) & lt.eq cal(T)^(pi_(k + 1)) cal(T)^(pi_(k + 1)) Q^(pi_k)\
+  Q^(pi_k) & <= #box(stroke: black, inset: 3pt, [$ cal(T)^(pi_(k + 1)) Q^(pi_k) $])\
+  arrow.r.double #box(stroke: black, inset: 3pt, [$ cal(T)^(pi_(k + 1)) Q^(pi_k) $]) & <= cal(T)^(pi_(k + 1)) cal(T)^(pi_(k + 1)) Q^(pi_k)\
   & dots.v\
-  arrow.r.double Q^(pi_k) & lt.eq (cal(T)^(pi_(k + 1)))^oo Q^(pi_k) = Q^(pi_(k + 1))
+  arrow.r.double Q^(pi_k) & <= (cal(T)^(pi_(k + 1)))^oo Q^(pi_k) = Q^(pi_(k + 1))
 $
 
 because $Q^(pi_(k + 1))$ is the fixed point of $cal(T)^(pi_(k + 1))$ .
@@ -1599,19 +1605,19 @@ in policy iteration, appply greedy algo very time.
 
 $forall pi , pi' , s$,
 
-$ V^(pi') (s) - V^pi (s) = frac(1, 1 - gamma) E_(s' tilde.op d_s^(pi')) [Q^pi (s' , pi') - V^pi (s')] $
+$ V^(pi') (s) - V^pi (s) = frac(1, 1 - gamma) E_(s' ~ d_s^(pi')) [Q^pi (s' , pi') - V^pi (s')] $
 
 apply the lemma in the policy iteration steps:
 
 $
-  V^(pi_(k + 1)) (s) - V^(pi_k) (s) = frac(1, 1 - gamma) E_(s' tilde.op ?) [Q^(pi_k) (s' , pi_(k + 1)) - V^(pi_k) (s')]
+  V^(pi_(k + 1)) (s) - V^(pi_k) (s) = frac(1, 1 - gamma) E_(s' ~ ?) [Q^(pi_k) (s' , pi_(k + 1)) - V^(pi_k) (s')]
 $
 
 and
 
 $ V^(pi_k) (s') = Q^(pi_k) (s' , pi_k) $
 
-and RHS $gt.eq 0$ is trivial. QED
+and RHS $>= 0$ is trivial. QED
 
 === Proof of lemma
 <proof-of-lemma>

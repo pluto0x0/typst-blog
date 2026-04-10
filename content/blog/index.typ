@@ -13,5 +13,5 @@
 
 == 2024
 
-- #link("rl/")[Fundamentals of Reinforcement Learning]
+- #link("fundamental-rl/")[Fundamentals of Reinforcement Learning]
 
