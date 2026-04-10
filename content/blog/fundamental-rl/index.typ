@@ -1,5 +1,5 @@
-// #import "../index.typ": template, tufted
-// #show: template.with(title: "Fundamentals of Reinforcement Learning")
+#import "../index.typ": template, tufted
+#show: template.with(title: "Fundamentals of Reinforcement Learning")
 #import "@preview/mmdr:0.2.1": mermaid
 #show raw.where(lang: "mermaid"): it => mermaid(it.text)
 
