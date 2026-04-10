@@ -956,9 +956,7 @@ are functions that map states to real values.
 
 E.g. a function space of linear value function approximation:
 
-$
-  cal(F) = {V_theta : theta in RR^(d)} ", where " V_theta (s) = theta^top phi.alt(s)
-$
+$ cal(F) = {V_theta : theta in RR^(d)} ", where " V_theta (s) = theta^top phi.alt(s) $
 
 - typically only a small subset of all possible functions
 - Using "all possible functions" = tabular!
@@ -971,9 +969,7 @@ $ min_(V_theta in cal(F)) 1 / n sum_(i = 1)^n (V_theta (s_i) - G_i)^2 $
 
 SGD: uniformly sample $i$ and
 
-$
-  theta <- theta - alpha dot (V_theta (s_(i)) - G_(i)) dot nabla V_theta (s_(i))
-$
+$ theta <- theta - alpha dot (V_theta (s_(i)) - G_(i)) dot nabla V_theta (s_(i)) $
 
 === Interprete Td(0) with Linear Approximation
 
@@ -1026,9 +1022,7 @@ $ 1 / n sum_(i = 1)^n (r_i + gamma theta_(k_1) (s'_i, pi)) . $
 with tuples $(s_t, a_t, r_t, s_(t + 1))$ in the long
 trajectory, applying the running average:
 
-$
-  Q_k (s_t, a_t) <- Q_k (s_t, a_t) + alpha(r_t + gamma Q_(k - 1)(s_(t + 1), pi) - Q_k (s_t, a_t))
-$
+$ Q_k (s_t, a_t) <- Q_k (s_t, a_t) + alpha(r_t + gamma Q_(k - 1)(s_(t + 1), pi) - Q_k (s_t, a_t)) $
 
 == SARSA
 
