@@ -928,9 +928,10 @@ linear function approximation:
 
 === Example: Tetris Game
 
-#figure(image("img/reinforcement-learning-lecture-14-1.png"), caption: [
-  Tetris Game
-])
+#figure(
+  image("img/reinforcement-learning-lecture-14-1.png", width: 60%),
+  caption: [Tetris Game]
+)
 
 The state space is exponentially large: each block be occupied / not
 occupied.
