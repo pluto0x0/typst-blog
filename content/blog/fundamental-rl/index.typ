@@ -28,7 +28,7 @@ $ EE [(Y - f(X))^2] - EE [(f(X) - EE[Y|X])^2] = EE [(Y - EE[Y|X])^2] . $
 It suffies to prove
 
 $
-  EE [(Y - f(X))^2 -(f(X) - EE [Y divides X])^2 -(Y - EE [Y divides X])^2] = 0 \
+  EE [(Y - f(X))^2 -(f(X) - EE [Y|X])^2 -(Y - EE [Y|X])^2] = 0 \
   "i.e." quad EE [(E [Y | X] - Y)(E [Y | X] - f(X))] = 0 .
 $
 
@@ -686,8 +686,8 @@ $ f_0 in RR^(S A), quad f_k in hat(cal(T)) f_(k - 1) . $
 where
 
 $
-  (hat(cal(T)) f)(s, a) &= hat(R) (s, a) + gamma EE_(s^prime ~ hat(P) (dot.op divides s, a)) underbrace([max_(a^prime) f(s^prime comma a^prime)], V_f (s^prime)) \
-&= 1/n sum_(i = 1)^n r_i + gamma lr(chevron.l hat(P) (dot.op divides s, a), V_f chevron.r) \
+  (hat(cal(T)) f)(s, a) &= hat(R) (s, a) + gamma EE_(s^prime ~ hat(P) (dot.op|s, a)) underbrace([max_(a^prime) f(s^prime comma a^prime)], V_f (s^prime)) \
+&= 1/n sum_(i = 1)^n r_i + gamma lr(chevron.l hat(P) (dot.op|s, a), V_f chevron.r) \
 &= 1/n sum_(i = 1)^n gamma_i + gamma sum_(s^prime) (1/n sum_(i = 1)^n II [s_i^prime = s^prime]) dot.op V_f (s^prime) \
 &= 1/n sum_(i = 1)^n r_i + gamma/n sum_(i = 1)^n (sum_(s^prime) II [s_i^prime = s^prime] V_f (s^prime)) \
 &= 1/n sum_(i = 1)^n r_i + gamma dot.op 1/n sum_(i = 1)^n V_f (s_i^prime) \
@@ -940,7 +940,7 @@ Featurize: \# of blocks on each column. In the example, the feature is $(4,4,5,4
 
 === Monte-Carlo Vaule Prediction
 
-$ V^pi (s) = EE [G divides s] = arg min_(f : S -> RR) EE [(f(s) - G)^2] $
+$ V^pi (s) = EE [G|s] = arg min_(f : S -> RR) EE [(f(s) - G)^2] $
 
 Is a regression problem.
 
