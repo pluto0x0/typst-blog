@@ -1,6 +1,7 @@
-#import "../index.typ": template, tufted
-#show: template.with(title: "Fundamentals of Reinforcement Learning")
+// #import "../index.typ": template, tufted
+// #show: template.with(title: "Fundamentals of Reinforcement Learning")
 #import "@preview/mmdr:0.2.1": mermaid
+#show raw.where(lang: "mermaid"): it => mermaid(it.text)
 
 == 1
 
@@ -371,16 +372,16 @@ c
 
 == example
 
-#mermaid("
-    graph TD;
-        A([start])
-        A -->|+0| B([Japanese])
-        A -->|+0| C([Italian])
-        B -->|+2| D([Ramen])
-        B -->|+2| E([Sushi])
-        C -->|+1| F([Steak])
-        C -->|+3| G([Pasta])
-")
+```mermaid
+graph TD;
+    A([start])
+    A -->|+0| B([Japanese])
+    A -->|+0| C([Italian])
+    B -->|+2| D([Ramen])
+    B -->|+2| E([Sushi])
+    C -->|+1| F([Steak])
+    C -->|+3| G([Pasta])
+```
 
 Optimal policy is heading `Pasta`.
 
@@ -388,7 +389,7 @@ Optimal policy is heading `Pasta`.
   This example is a finite horizon case. To make it infinite horizon
   discount, add a state $T$ :
 
-  #mermaid("
+  ```mermaid
   graph TD;
       A([start])
       A -->|+0| B([Japanese])
@@ -403,7 +404,7 @@ Optimal policy is heading `Pasta`.
       F -.->|+0| T((T))
       G -.->|+0| T((T))
       T --->|+0| T((T))
-  ")
+  ```
 ]
 
 To find $V^* (s)$ , update $V$ value from leaf upwards to root
@@ -415,7 +416,7 @@ state.
 
 define initial $pi_0$ :
 
-#mermaid("
+```mermaid
 graph TD;
     A([start])
     A -.-|+0| B([Japanese])
@@ -424,11 +425,11 @@ graph TD;
     B -.-|+2| E([Sushi])
     C ==>|+1| F([Steak])
     C -.-|+3| G([Pasta])
-")
+```
 
 then the corresponding $Q^(pi_0)(s, a)$ :
 
-#mermaid("
+```mermaid
 graph TD;
     A([start])
     A -->|+2| B([Japanese])
@@ -437,13 +438,14 @@ graph TD;
     B -->|+2| E([Sushi])
     C -->|+1| F([Steak])
     C -->|+3| G([Pasta])
-")
+```
+
 
 ==== interation \#1
 
 $ pi_1 (s) : = arg max_(a in A) Q^(pi_0) (s, a) $
 
-#mermaid("
+```mermaid
 graph TD;
     A([start])
     A ==>|+2| B([Japanese])
@@ -452,11 +454,11 @@ graph TD;
     B -.-|+2| E([Sushi])
     C -.-|+1| F([Steak])
     C ==>|+3| G([Pasta])
-")
+```
 
 $Q^(pi_i)$:
 
-#mermaid("
+```mermaid
 graph TD;
     A([start])
     A -->|+2| B([Japanese])
@@ -465,13 +467,13 @@ graph TD;
     B -->|+2| E([Sushi])
     C -->|+1| F([Steak])
     C -->|+3| G([Pasta])
-")
+```
 
 ==== interation \#2
 
 $ pi_2 (s) : = arg max_(a in A) Q^(pi_1) (s, a) $
 
-#mermaid("
+```mermaid
 graph TD;
     A([start])
     A -.-|+2| B([Japanese])
@@ -480,7 +482,7 @@ graph TD;
     B -.-|+2| E([Sushi])
     C -.-|+1| F([Steak])
     C ==>|+3| G([Pasta])
-")
+```
 
 ==== Comment
 
