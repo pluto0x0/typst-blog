@@ -929,7 +929,7 @@ linear function approximation:
 === Example: Tetris Game
 
 #figure(
-  image("img/reinforcement-learning-lecture-14-1.png", width: 60%),
+  image("img/reinforcement-learning-lecture-14-1.png", width: 30%),
   caption: [Tetris Game]
 )
 
