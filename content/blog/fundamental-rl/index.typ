@@ -14,38 +14,44 @@
 
 #set heading(numbering: "1.")
 
-= RL Settings
+= Introduction to Reinforcement Learning
 
-- state: $s in S$
-- action: $a in A$
-- reward: $r: S times A -> RR$
-- transition: $P(s'|s, a)$
-- policy: $pi: S -> A$. optimal policy: $pi^* $, 
+== Basic Definitions
 
-- value function: $V^pi (s) = EE [sum_(t = 1)^oo gamma^(t - 1) r_t|s_1 = s, pi]$ where $r_t$ is the reward at time step $t$ and $gamma in (0, 1)$ is the discount factor.
-- Q function: $Q^pi (s, a) = EE [sum_(t = 1)^oo gamma^(t - 1) r_t|s_1 = s, a_1 = a, pi]$
+An RL problem is defined by the following components:
 
-= Examples
+- *State*: $s in S$, the set of all possible configurations of the environment.
+- *Action*: $a in A$, the set of all actions the agent can take.
+- *Reward*: $r: S times A -> RR$, the immediate feedback signal for taking an action in a state.
+- *Transition*: $P(s'|s, a)$, the probability of transitioning to state $s'$ given state $s$ and action $a$.
+- *Policy*: $pi: S -> A$, a mapping from states to actions. The optimal policy is denoted $pi^*$.
 
-== Example: Shortest Path
+Two central quantities measure the long-term quality of a policy:
+
+- *Value function*: $V^pi (s) = EE [sum_(t = 1)^oo gamma^(t - 1) r_t|s_1 = s, pi]$ where $r_t$ is the reward at time step $t$ and $gamma in (0, 1)$ is the discount factor. It measures the expected cumulative discounted reward starting from state $s$ under policy $pi$.
+- *Q function*: $Q^pi (s, a) = EE [sum_(t = 1)^oo gamma^(t - 1) r_t|s_1 = s, a_1 = a, pi]$, which additionally conditions on the first action $a$.
+
+== Motivating Examples
+
+=== Shortest Path
 
 #figure(
   image("img/reinforcement-learning-lecture-1.png", width: 60%),
   caption: [Shortest Path],
 )
 
-- nodes: stats
+- nodes: states
 - edges: actions
 
-Greedy is not optimal.
+A greedy algorithm is not optimal in general, because locally optimal choices may lead to globally suboptimal paths.
 
-*Bellman Equation* (Dynamic Programing):
+*Bellman Equation* (Dynamic Programming):
 
 $ V^* (d) = min{3 + V^* (g), 2 + V^* (f)} $
 
-== Stochastic Shortest Path
+=== Stochastic Shortest Path
 
-Markov Decision Process (MDP)
+When transitions are stochastic, the problem becomes a *Markov Decision Process (MDP)*: the next state depends probabilistically on the current state and action.
 
 #figure(
   image("img/reinforcement-learning-lecture-1-1.png", width: 60%),
@@ -54,78 +60,77 @@ Markov Decision Process (MDP)
 
 *Bellman Equation*
 
-$ V^star.op (c) = min {4 + 0.7 V^star.op (d) + 0.3 V^star.op (e), thin 2 + V^star.op (e)} $
+$ V^* (c) = min {4 + 0.7 V^* (d) + 0.3 V^* (e), thin 2 + V^* (e)} $
 
-optimal policy : $pi^*$
+The optimal policy $pi^*$ is the one that minimizes the expected cost at every state.
 
-== Model-based RL
+=== Model-based RL
 
-The states are unknown. Learn by *trial-and-error*
+In model-based RL, the transition probabilities are unknown. The agent must learn them by *trial-and-error*.
 
 #figure(
   image("img/reinforcement-learning-lecture-1-2.png", width: 60%),
   caption: [a trajectory: $s_0->c->e->F->G$],
 )
 
-Need to recover the graph by collecting multiple *trajectories*.
+The agent recovers the underlying graph structure by collecting multiple *trajectories*. It then uses empirical frequencies to estimate transition probabilities.
 
-Use imperial frequency to find probabilities.
+#tufted.margin-note[This approach assumes that states and actions are visited sufficiently uniformly.]
 
-Assume states & actions are visited uniformly.
+=== Exploration Problem
 
-== Exploration Problem
-
-Random exploration can be inefficient:
+Random exploration can be inefficient, especially in environments with sparse rewards:
 
 #figure(
   image("img/reinforcement-learning-lecture-1-5.png", width: 30%),
   caption: [example: video game],
 )
 
-== Example: Video Game
+=== Video Game
 
-Objective: maximize the reward
+Objective: maximize the cumulative reward.
 
 $ EE[sum_(t = 1)^oo r_t|pi] "or" EE[sum_(t=1)^oo gamma^(t - 1) r_t|pi] $
 
-Problem: the graph is too large
+Problem: the state space is too large to enumerate.
 
 #figure(
   image("img/reinforcement-learning-lecture-1-4.png", width: 60%)
 )
 
-There are states that the RL model have never seen, therefore need
-*generalization*
+There are states that the RL agent has never seen, and therefore the agent needs *generalization* to handle unseen states.
 
-== Contextual bandits
+=== Contextual Bandits
 
-- Even if the algorithm is good, if mamke bad actions at beginning, will
-  not get good data.
-- Keep taking bad actions (e.g.~guessing wrong label on image
-  classification), don't know right action.
-  - Compared with superivsed learning
+- Even if the algorithm is good, if it makes bad actions at the beginning, it will not get good data.
+- Keeping bad actions (e.g.~guessing wrong label on image classification) prevents the agent from discovering the right action.
+  - This is a key difference from supervised learning, where the correct labels are always available.
 - #link("https://en.wikipedia.org/wiki/Multi-armed_bandit")[Multi-armed bandit]
 
-= RL steps
+= The RL Protocol
 
-For round t = 1, 2, …,
+For round $t = 1, 2, ...,$ the learner interacts with the environment as follows:
 
-- For time step h=1, 2, …, H, the learner
-  - Observes $x_h^((t))$
-  - Chooses $a_h^((t))$
-  - Receives
+- For time step $h=1, 2, ..., H$, the learner
+  - Observes state $x_h^((t))$
+  - Chooses action $a_h^((t))$
+  - Receives reward
     $r_h^((t))~R(x_h^((t)), a_h^((t)))$
-  - Next $x_(h + 1)^((t))$ is generated as a function of
-    $x_h^((t))$ and $a_h^((t))$ (or sometimes, all previous x's
-    and a's within round t)
+  - The next state $x_(h + 1)^((t))$ is generated as a function of
+    $x_h^((t))$ and $a_h^((t))$ (or sometimes, all previous states
+    and actions within round $t$)
 
-Recall $V^* , Q^* , V^pi, Q^pi$ .
+Recall $V^* , Q^* , V^pi, Q^pi$. The optimal value function satisfies:
 
 $
-  V^* (s) = max_(a in A)(underbrace(R(s, a) + gamma EE_(S'~P(dot|s, a)) [V^*  (s')], Q^* (s, a)))
+  V^* (s) = max_(a in A)(underbrace(R(s, a) + gamma EE_(s'~P(dot|s, a)) [V^*  (s')], Q^* (s, a)))
 $
 
-= Bellman Operator
+= Bellman Equations and Dynamic Programming
+
+== Bellman Operator
+
+The Bellman operator $cal(T)$ maps a function $f : S times A -> RR$ to another function of the same type:
 
 $
   forall f : S times A -> RR,\
@@ -133,138 +138,132 @@ $
   "where" cal(T) : RR^(S A) -> RR^(S A) .
 $
 
-then
+The key property is that $Q^*$ and $V^*$ are *fixed points* of the Bellman operator:
 
 $
   Q^*  = cal(T) Q^* \
   V^*  = cal(T) V^* \
 $
 
-i.e.~$Q^* $ and $V^* $ are fixpoints of $cal(T)$ .
+i.e.~$Q^* $ and $V^* $ are fixed points of $cal(T)$.
 
-= Value Interation Algorithm (VI)
-<value-interation-algorithm-vi>
+== Value Iteration Algorithm (VI)
+<value-iteration-algorithm-vi>
 
-$ "funtion " f_0 = arrow(0) in RR^(S A) $
+The *greedy policy* with respect to the optimal Q-function is:
 
-Interation to calculate fix points:
+$ pi^* (s) = arg max_(a in A) Q^* (s, a) $
 
-for $k = 1, 2, 3, ...$ ,
-
-$ f_k = cal(T) f_(k - 1) $
-
-How to do interation
-
-$ forall s, a : f_1(s, a) <- cal(T) f_0(s, a) $
-
-- synchronized iteration: use all functions values from old version
-  during the update.
-- asynchronized iteration
-
-= Convergence of VI
-
-lemma: $cal(T)$ is a $gamma$ *\-contraction* under
-$||dot||_oo$ where
-$||dot||_oo := max_(x in(dot)) x$ .
-
-which means
-
-$||cal(T) f - cal(T) f'||_oo <= gamma||f - f'||_oo $
-
-Proof.
-
-$
-    &||f_k - Q^* ||_oo \
-  = &||cal(T) f_(k - 1) - Q^* ||_oo \
-  = &||cal(T) f_(k - 1) - cal(T) Q^* ||_oo \
-  <=^("lemma") & gamma||f_(k - 1) - Q^* ||_oo \
-$
-
-$
-  =>||f_k - Q^* ||_oo <= gamma^k||f_(k - 1) - Q^* ||_oo "where" gamma in(0, 1) qed
-$
-
-Proof of lemma:
-
-It suffies to prove
-
-$
-  & lr(|(cal(T) f - cal(T) f')(s, a)|)\
-  = & lr(|(R(s, a) + gamma EE_(s'~P(dot |s, a))[max_(a') f(s', a')]) - (R(s, a) + gamma EE_(s'~P(dot| s, a))[max_(a') f(s', a')])|)\
-  = & gamma lr(|EE_(s'~P(dot|s, a))[max_(a') f(s', a') - max_(a') f'(s', a')]|)
-$
-
-WLOG assume, $max_(a') f(s' , a') > max_(a') f' (s' , a')$ and $exists a^* : max_a f(s', a) = f(s', a^*)
-$
-
-$ & gamma lr(|EE_(s'~P(dot|s, a))[max_(a') f(s', a') - max_(a') f'(s', a')]|)\
- & gamma lr(|EE_(s'~P(dot|s, a))[f(s', a^* ) - max_(a') f'(s', a')]|)\
-<= & gamma lr(|EE_(s'~P(dot|s, a))[f(s', a^* ) - f'(s', a^* )]|)\
-<= & gamma lr(|f(s', a^* ) - f'(s', a^* )|)\
-<= & gamma||f - f'||_oo $ 
-
-greedy policy:
-
-$
-  pi^star.op (s) = arg max_(a in A) Q^star.op (s, a)
-$
-
-sequence of function:
+Value Iteration computes a sequence of functions converging to $Q^*$:
 
 $ f_0, f_1, f_2, ... -> Q^*  $
 
-define
+At each step, the greedy policy with respect to $f_k$ is defined as:
 
-$ pi_(f_k)^star.op (s) = arg max_(a in A) f_k (s, a) $
+$ pi_(f_k)^* (s) = arg max_(a in A) f_k (s, a) $
 
-Claim:
+The following claim bounds the suboptimality of the greedy policy:
 
-$||V^*  - V^(pi_f)||<= frac(2||f - Q^*  | |_oo, 1 - gamma) $
+$||V^*  - V^(pi_f)||<= frac(2||f - Q^* ||_oo, 1 - gamma) $
 
-define operator $cal(T)$ :
+Define the Bellman operator on value functions:
 
 $ (cal(T) f)(s) = max_(a in A) (R(s, a) + gamma E_(s'~P(dot|s, A)) [f (s')]) $
 
 #footnote[
-  Note: the $cal(T)$ in $cal(T) Q^* $ and $cal(T) V^* $ are *not the same*.
+  Note: the $cal(T)$ acting on $Q^*$ (mapping $RR^(S A) -> RR^(S A)$) and the $cal(T)$ acting on $V^*$ (mapping $RR^S -> RR^S$) are *not the same* operator, though they share the same notation.
 ]
 
-= $V^* $ Iteration
+The algorithm starts from the zero function and iterates:
+
+$ f_0 = arrow(0) in RR^(S A) $
+
+For $k = 1, 2, 3, ...,$ compute:
+
+$ f_k = cal(T) f_(k - 1) $
+
+Concretely, this means: $forall s, a : f_1(s, a) <- cal(T) f_0(s, a)$.
+
+There are two variants of performing this iteration:
+
+- *Synchronous iteration*: use all function values from the old version $f_(k-1)$ during the update.
+- *Asynchronous iteration*: update entries one at a time, using the most recent values.
+
+=== Convergence of Value Iteration
+
+#lemma(name: [$gamma$-contraction])[
+
+  $cal(T)$ is a *$gamma$-contraction* under $||dot||_oo$, where $||f||_oo := max_(s, a) |f(s, a)|$. This means:
+  $||cal(T) f - cal(T) f'||_oo <= gamma||f - f'||_oo $
+]
+
+#proof(name: [$gamma$-contraction])[
+
+  It suffices to prove
+  $
+    & lr(|(cal(T) f - cal(T) f')(s, a)|)\
+    = & lr(|(R(s, a) + gamma EE_(s'~P(dot |s, a))[max_(a') f(s', a')]) - (R(s, a) + gamma EE_(s'~P(dot| s, a))[max_(a') f(s', a')])|)\
+    = & gamma lr(|EE_(s'~P(dot|s, a))[max_(a') f(s', a') - max_(a') f'(s', a')]|)
+  $
+
+  WLOG assume, $max_(a') f(s' , a') > max_(a') f' (s' , a')$ and $exists a^* : max_a f(s', a) = f(s', a^*)$, then
+
+  $ & gamma lr(|EE_(s'~P(dot|s, a))[max_(a') f(s', a') - max_(a') f'(s', a')]|)\
+  & gamma lr(|EE_(s'~P(dot|s, a))[f(s', a^* ) - max_(a') f'(s', a')]|)\
+  <= & gamma lr(|EE_(s'~P(dot|s, a))[f(s', a^* ) - f'(s', a^* )]|)\
+  <= & gamma lr(|f(s', a^* ) - f'(s', a^* )|)\
+  <= & gamma||f - f'||_oo $
+]
+
+Using the $gamma$-contraction lemma, we can prove the convergence of Value Iteration:
+
+#proof(name: "Convergence of VI")[
+  $
+      &||f_k - Q^* ||_oo \
+    = &||cal(T) f_(k - 1) - Q^* ||_oo \
+    = &||cal(T) f_(k - 1) - cal(T) Q^* ||_oo \
+    <=^("lemma") & gamma||f_(k - 1) - Q^* ||_oo \
+  $
+
+  Applying this recursively from $f_0$:
+
+  $ =>||f_k - Q^* ||_oo <= gamma^k||f_0 - Q^* ||_oo "where" gamma in(0, 1) $
+]
+
+== $V^* $ Iteration
+
+$V^*$ Iteration is the analogous algorithm applied to value functions instead of Q-functions:
 
 $
   f_0 = arrow(0)\
   f_k <- cal(T) f_(k - 1)
 $
 
-then
+The resulting $f_k$ equals the optimal value over $k$-horizon policies:
 
 $ f_k (s) = max_("all possible " pi) EE [sum_(t = 1)^k gamma^(t - 1) r_t|s_1 = s, pi] $
-
 #footnote[
-  This is derived my the definaion of operator $cal(T)$.
+  This follows from the definition of the Bellman operator $cal(T)$.
 ]
 
-Claim:
+The convergence rate is:
 
-$||f_k - V^* ||lt.tilde gamma^k $
+$||f_k - V^* || lt.tilde gamma^k $
 
-step 1: $f_k <= V^* $
+Step 1: $f_k <= V^* $ (the $k$-horizon optimum cannot exceed the infinite-horizon optimum).
 
-step 2:
+Step 2:
 
 $
   f_k >= & EE [sum_(t = 1)^oo gamma^(t - 1) r_t|s_1 = s, pi^* ] - EE [sum_(t = k + 1)^oo gamma^(t - 1) r_t|s_1 = s, pi^* ]\
-  >= & V^*  - r^k V_max qed
+  >= & V^*  - gamma^k V_max qed
 $
 
-
-c
-
 #footnote[
-  this means, once reached goal $pi^* $ , never leave.
+  This argument assumes that once the optimal policy $pi^*$ reaches the goal, it never leaves. The tail reward beyond step $k$ is bounded by $gamma^k V_max$.
 ]
 
-= example
+== Example: Restaurant Choice
 
 ```mermaid
 graph TD;
@@ -277,11 +276,11 @@ graph TD;
     C -->|+3| G([Pasta])
 ```
 
-Optimal policy is heading `Pasta`.
+The optimal policy is to head toward `Pasta`, which yields the maximum cumulative reward of $3$.
 
 #footnote[
   This example is a finite horizon case. To make it infinite horizon
-  discount, add a state $T$ :
+  discount, add a terminal state $T$ :
 
   ```mermaid
   graph TD;
@@ -301,14 +300,15 @@ Optimal policy is heading `Pasta`.
   ```
 ]
 
-To find $V^* (s)$ , update $V$ value from leaf upwards to root
-state.
+To find $V^* (s)$, update $V$ values from the leaf nodes upward to the root state.
 
-== policy iteration (example)
+= Policy Iteration
 
-=== interation \#0
+== Policy Iteration by Example
 
-define initial $pi_0$ :
+=== Iteration \#0
+
+Define initial policy $pi_0$ :
 
 ```mermaid
 graph TD;
@@ -321,7 +321,7 @@ graph TD;
     C -.-|+3| G([Pasta])
 ```
 
-then the corresponding $Q^(pi_0)(s, a)$ :
+Then compute the corresponding $Q^(pi_0)(s, a)$ :
 
 ```mermaid
 graph TD;
@@ -335,9 +335,9 @@ graph TD;
 ```
 
 
-=== interation \#1
+=== Iteration \#1
 
-$ pi_1 (s) : = arg max_(a in A) Q^(pi_0) (s, a) $
+Update the policy greedily: $ pi_1 (s) : = arg max_(a in A) Q^(pi_0) (s, a) $
 
 ```mermaid
 graph TD;
@@ -350,7 +350,7 @@ graph TD;
     C ==>|+3| G([Pasta])
 ```
 
-$Q^(pi_i)$:
+$Q^(pi_1)$:
 
 ```mermaid
 graph TD;
@@ -363,7 +363,7 @@ graph TD;
     C -->|+3| G([Pasta])
 ```
 
-=== interation \#2
+=== Iteration \#2
 
 $ pi_2 (s) : = arg max_(a in A) Q^(pi_1) (s, a) $
 
@@ -378,118 +378,107 @@ graph TD;
     C ==>|+3| G([Pasta])
 ```
 
-=== Comment
+=== Discussion
 
-Policy $pi$ was switched to Japanese for once, and switched back to
-Italian at the end.
+The policy was switched to Japanese in iteration \#1, then switched back to Italian in iteration \#2. This illustrates that the policy updates propagate information *upward* from the leaves: the leaf-level choices are corrected first, and the root-level decision adjusts once the downstream values are accurate.
 
-Also, the policy updates upwards.
+== Monotone Policy Improvement
 
-= Monotone Policy improvement
+Policy iteration is guaranteed to improve monotonically:
 
-$ forall k, forall s : V^(pi_k) >= V^(pi_(k - 1)) $
+$ forall k, forall s : V^(pi_k)(s) >= V^(pi_(k - 1))(s) $
 
-$ "if" pi_(k - 1) eq.not pi^* , exists s : v^(pi_k)(s) > V^(pi_(k - 1))(s) $
+$ "if" pi_(k - 1) eq.not pi^* , exists s : V^(pi_k)(s) > V^(pi_(k - 1))(s) $
 
-$ => "#iteration" <= |A|^(|S|) $
+Since the number of distinct deterministic policies is finite, the total number of iterations is bounded:
 
-#footnote[
-  Monotone Policy improvement produces exact solutions, while value
-  iteration produces approxmitate solutions,
-]
+$ "#iterations" <= |A|^(|S|) $
 
-Proof of: $Q^(pi_(k + 1)) >= Q^(pi_k)$
+#tufted.margin-note[Monotone policy improvement produces *exact* solutions, while value iteration produces approximate solutions that converge in the limit.]
 
-lemma 1:
+=== Proof of Monotone Improvement
+
+We want to show $Q^(pi_(k + 1)) >= Q^(pi_k)$. The proof relies on three lemmas.
+
+*Lemma 1*:
 
 $ Q^(pi_k) = cal(T)^(pi_k) Q^(pi_k) <= cal(T) Q^(pi_k) $
 
-beacuse
+because
 
 $
-  &(cal(T)^pi f)(s, a) = R(s, a) + gamma EE_(s'~p(dot|s, a)) [f (s', pi)]\
-  <= &(cal(T) f)(s, a) = R(s, a) + gamma EE_(s'~p(dot|s, a)) [max_(a') f (s', a')]
+  &(cal(T)^pi f)(s, a) = R(s, a) + gamma EE_(s'~P(dot|s, a)) [f (s', pi)]\
+  <= &(cal(T) f)(s, a) = R(s, a) + gamma EE_(s'~P(dot|s, a)) [max_(a') f (s', a')]
 $
 
-lemma 2:
+*Lemma 2*:
 
 $ cal(T) Q^(pi_k) = cal(T)^(pi_(k + 1)) Q^(pi_k) $
 
-lemma 3:
+*Lemma 3*:
 
 $ forall f >= f', cal(T)^pi f >= cal(T)^pi f' $
 
-with lemma 1,2,3,
+Combining Lemmas 1, 2, and 3:
 
 $
   Q^(pi_k) & <= cal(T)^(pi_(k + 1)) Q^(pi_k)\
   => cal(T)^(pi_(k + 1)) Q^(pi_k) & <= cal(T)^(pi_(k + 1)) cal(T)^(pi_(k + 1)) Q^(pi_k)\
-  & ....v\
+  & dots.v\
   => Q^(pi_k) & <= (cal(T)^(pi_(k + 1)))^oo Q^(pi_k) = Q^(pi_(k + 1))
 $
 
-= because $Q^(pi_(k + 1))$ is the fixed point of $cal(T)^(pi_(k + 1))$ .
+The last equality holds because $Q^(pi_(k + 1))$ is the fixed point of $cal(T)^(pi_(k + 1))$.
 
-= recap
+=== Summary
 
-in policy iteration, appply greedy algo very time.
+In policy iteration, we apply the greedy improvement at every step. The number of iterations is finite because the policy improves strictly at each step and the total number of deterministic policies is bounded.
 
-\#steps are finite.
+== Performance-Difference Lemma
 
-= another proof
-
-== performance-difference lemma (P-D lemma)
-
-#footnote[
-  this is a fundamental tool in RL. many deep RL models relies on this
-  lemma
-]
+#tufted.margin-note[The Performance-Difference Lemma is a fundamental tool in RL theory. Many deep RL algorithms rely on this lemma.]
 
 $forall pi, pi', s$,
 
 $ V^(pi')(s) - V^pi(s) = frac(1, 1 - gamma) E_(s'~d_s^(pi')) [Q^pi(s', pi') - V^pi(s')] $
 
-apply the lemma in the policy iteration steps:
+Applying the lemma to the policy iteration steps:
 
 $
-  V^(pi_(k + 1))(s) - V^(pi_k)(s) = frac(1, 1 - gamma) E_(s'~?) [Q^(pi_k)(s', pi_(k + 1)) - V^(pi_k)(s')]
+  V^(pi_(k + 1))(s) - V^(pi_k)(s) = frac(1, 1 - gamma) E_(s'~d_s^(pi_(k+1))) [Q^(pi_k)(s', pi_(k + 1)) - V^(pi_k)(s')]
 $
 
-and
+Since $V^(pi_k)(s') = Q^(pi_k)(s', pi_k)$ and $pi_(k+1)$ is the greedy policy with respect to $Q^(pi_k)$, the term $Q^(pi_k)(s', pi_(k+1)) - V^(pi_k)(s') >= 0$ for all $s'$, so the RHS is non-negative. This gives another proof of monotone policy improvement.
 
-$ V^(pi_k)(s') = Q^(pi_k)(s', pi_k) $
+=== Proof of the Lemma
 
-and RHS $>= 0$ is trivial. QED
+_(Proof omitted.)_
 
-== Proof of lemma
+= Planning and Learning
 
- The Learning Setting
+*Planning*:
 
-= planning and learning
+- Given the MDP model, compute the optimal policy.
+- The MDP model $(S, A, P, R, gamma)$ is fully known.
 
-Planning:
+*Learning*:
 
-- given MDP model, how to compute optimal policy
-- The MDP model is known
+- The MDP model is unknown.
+- The agent must collect data from the MDP in the form of tuples $(s, a, r, s')$.
+- Data is limited, e.g., in adaptive medical treatment and dialog systems.
+- Examples: Go, chess, etc.
+- Learning can be useful *even if the final goal is planning*:
+  - Especially when $|S|$ is large and/or only a blackbox simulator is available.
+  - E.g., AlphaGo, video game playing, simulated robotics.
 
-Learning:
+= Monte-Carlo Policy Evaluation
 
-- MDP model is unknown
-- collect data from the MDP: $(s, a, r, s')$ .
-- Data is limited. e.g., adaptive medical treatment, dialog systems
-- Go, chess, …
-- Learning can be useful *even if the final goal is planning*
-  - especially when $|S|$ is large and/or only blackbox simulator
-  - e.g., AlphaGo, video game playing, simulated robotics
+Given a policy $pi$, we want to estimate its performance:
+$J(pi) := EE_(s~d_0) [V^pi(s)]$ , where $d_0$ is the initial
+state distribution.
 
-= Monte-Carlo policy evaluation
-
-Given $pi$ , estimate
-$J(pi) := EE_(s~d_0) [V^pi(s)]$ ( $d_0$ is initial
-state distribution) is the *actual* expectation of reward.
-
-Monte-Carlo outputs some scalar $v$ \; accuracy measured by
-$|v - J(pi)|$ . (by sampling different trajectories):
+Monte-Carlo outputs some scalar $v$; accuracy is measured by
+$|v - J(pi)|$. The estimate is obtained by sampling different trajectories:
 
 Data: trajectories starting from $s_1~d_0$ using $pi$ (i.e.,
 $a_t = pi (s_t)$ ).
@@ -498,173 +487,164 @@ $
   {(s_1^((i)), a_1^((i)), r_1^((i)), s_2^((i)), ..., s_H^((i)), a_H^((i)), r_H^((i)))}_(i = 1)^n
 $
 
-#footnote[
-  this is called on-policy: evaluating a policy with data collected from
-  the exactly same policy.
-
-  Othwise, it is off-policy.
-]
+#tufted.margin-note[This is called *on-policy* evaluation: the data is collected using the exact same policy being evaluated. Otherwise, it is *off-policy*.]
 
 Estimator:
 
 $ 1 / n sum_(i = 1)^n sum_(t = 1)^H gamma^(t - 1) r_t^((i)) $
 
 #footnote[
-  Guarantee: w.p. at least
+  Guarantee: with probability at least
   $1 - delta, |v - J(pi)| <= frac(R_max, 1 - gamma) sqrt(frac(1, 2 n) ln 2 / delta)$
-  (larger n, higher accuracy)
-
-  It is *independent* to the size of state space
+  (larger $n$ means higher accuracy).
+  Notably, this bound is *independent* of the size of the state space.
 ]
 
 == Comment on Monte-Carlo
 
-Monte-Carlo is a Zeroth-order (ZO) optimization method, which is not
-efficient.
+Monte-Carlo is a zeroth-order (ZO) optimization method, which is not
+efficient compared to higher-order methods:
 
-- *first order*: gradient / first derivative (in DL/ML,
-  *SDG*)
-- *second order*: Hessian matrix / second derivative
+- *First order*: gradient / first derivative (in DL/ML,
+  *SGD*)
+- *Second order*: Hessian matrix / second derivative
 
-= Model-based RL with a sampling oracle (Certainty Equivalence)
+= Model-based RL with a Sampling Oracle (Certainty Equivalence)
 
-#footnote[
-  Assuming the reward / probability is determined (constant) via sampling.
- 
-]
+#tufted.margin-note[The term "Certainty Equivalence" refers to treating the estimated model as if it were the true model.]
 
 Assume we can sample $r~R(s, a)$ and
-$s'~P(s, a)$ for any $(s, a)$
+$s'~P(s, a)$ for any $(s, a)$.
 
 Collect $n$ samples per
 $(s, a)$: $(r_i , s'_i)_(i = 1)^n$ .
-Total sample size $n |S times A|$
+Total sample size: $n |S times A|$.
 
-Estimate an empirical MDP $hat(M)$ from data
+Estimate an empirical MDP $hat(M)$ from data:
 
 - $hat(R)(s, a) := 1 / n sum_(i = 1)^n r_i, quad hat(P) (s'|s, a) := 1 / n sum_(i = 1)^n II [s'_i = s']$
 - i.e., treat the empirical frequencies of states appearing in
   ${ s'_i }_(i = 1)^n$ as the true distribution.
 
-Plan in the estimated model and return the optimal policy
+Plan in the estimated model and return the optimal policy.
 
-transition tuples: $(s_i, a_i, r_i, s_(i + 1))$ . Use
-$s_i, a_i$ to identify current state and action, use $r_i$ for reward
-and $s_(i + 1)$ for transition.
+Transition tuples: $(s_i, a_i, r_i, s_(i + 1))$. Use
+$s_i, a_i$ to identify the current state and action, use $r_i$ for reward,
+and $s_(i + 1)$ for the next-state transition. These tuples can be extracted from trajectories.
 
-extract transition tuples from trajectories.
+== Finding Policy on Estimated Environment
 
-== finding policy on estimated environment
+*True* environment: $M =(S, A, P, R, gamma)$
 
-*true* environment: $M =(S, A, P, R, gamma)$
-
-*estimated* environment:
+*Estimated* environment:
 $hat(M) =(S, A, hat(P), hat(R), gamma)$
 
-- notation: $pi_(hat(M)), thin V_(hat(M)), thin ...$
+- Notation: $pi_(hat(M)), thin V_(hat(M)), thin ...$
 
-performance measurement:
+Performance measurement:
 
-- in the *true* environment, use
-  $||V^*  - V^(pi_f)||$ where $f approx Q^* $
+- In the *true* environment, use
+  $||V^*  - V^(pi_f)||$ where $f approx Q^* $.
 
-- in *estimated* environment, use $||V_M^*  - V_M^(pi_(hat(M))^* )||$ , i.e.~measure the optimal policy of estimated environment in the real environment.
+- In the *estimated* environment, use $||V_M^*  - V_M^(pi_(hat(M))^* )||$, i.e.~measure the performance of the optimal policy of the estimated environment when deployed in the real environment.
 
-= Model-based RL with a sampling oracle (Certainty Equivalence) *Cont'd*
+== Empirical Bellman Update
 <model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd>
 
-To find $Q_(hat(M))^* $ with empirical $hat(R)$ and $hat(P)$ :
+To find $Q_(hat(M))^* $ with empirical $hat(R)$ and $hat(P)$, we run value iteration in the estimated model:
 
-$ f_0 in RR^(S A), quad f_k in hat(cal(T)) f_(k - 1) . $
+$ f_0 in RR^(S A), quad f_k = hat(cal(T)) f_(k - 1) . $
 
 where
 
 $
   (hat(cal(T)) f)(s, a) &= hat(R) (s, a) + gamma EE_(s^prime ~ hat(P) (dot.op|s, a)) underbrace([max_(a^prime) f(s^prime comma a^prime)], V_f (s^prime)) \
 &= 1/n sum_(i = 1)^n r_i + gamma lr(chevron.l hat(P) (dot.op|s, a), V_f chevron.r) \
-&= 1/n sum_(i = 1)^n gamma_i + gamma sum_(s^prime) (1/n sum_(i = 1)^n II [s_i^prime = s^prime]) dot.op V_f (s^prime) \
+&= 1/n sum_(i = 1)^n r_i + gamma sum_(s^prime) (1/n sum_(i = 1)^n II [s_i^prime = s^prime]) dot.op V_f (s^prime) \
 &= 1/n sum_(i = 1)^n r_i + gamma/n sum_(i = 1)^n (sum_(s^prime) II [s_i^prime = s^prime] V_f (s^prime)) \
 &= 1/n sum_(i = 1)^n r_i + gamma dot.op 1/n sum_(i = 1)^n V_f (s_i^prime) \
 &= 1/n sum_(i = 1)^n (r_i + gamma max_(a^prime) f(s_i^prime , a^prime)) \
 $
 
-is call the *Empirical Bellman Update*.
+This is called the *Empirical Bellman Update*.
 
 == Computational Complexity
 
-=== Value Interation
+=== Value Iteration
 
-For original
-#link(<value-interation-algorithm-vi>)[value iteration],
-the Computational Complexity is
+For the original
+#link(<value-iteration-algorithm-vi>)[Value Iteration],
+the computational complexity per iteration is
 
 $ |S| times |A| times |S| $
 
-$|S| times |A|$ for each $f(s,a)$ and $|S|$ for expectation.
+$|S| times |A|$ entries to update, each requiring an expectation over $|S|$ next states.
 
 === Empirical Bellman Update
 
-For Empirical Bellman Update, the Computational Complexity is
+For the Empirical Bellman Update, the computational complexity per iteration is
 
 $ |S| times |A| times n $
 
-Empirical sampling for $n$ times.
+where $n$ is the number of empirical samples per state-action pair.
 
-= the Value Prediction Problem
+= Value Prediction
 
-Given $pi$ , wnat to know $V^pi$ and $Q^pi$ .
+== The Value Prediction Problem
+
+Given a fixed policy $pi$, we want to estimate $V^pi$ and $Q^pi$.
 
 / On-policy Learning: #block[
-    data used to improve policy $pi$ is generated by $pi$ .
+    Data used to evaluate or improve policy $pi$ is generated by $pi$ itself.
   ]
 
 / Off-policy Learning: #block[
-    data used to improve policy $pi$ is generated by some other policies.
+    Data used to evaluate or improve policy $pi$ is generated by some other policy.
   ]
 
-When action is always chosen by a fixed policy, the MDP reduces to a
-Markov chain plus a reward function over states, also known as Markov
-Reward Processes (MRP)
+When the action is always chosen by a fixed policy, the MDP reduces to a
+Markov chain plus a reward function over states, also known as a *Markov
+Reward Process (MRP)*.
 
 == Monte-Carlo Value Prediction
 <monte-carlo-value-prediction>
 
-For each $s$ , roll out $n$ trajectories using policy $pi$
+For each state $s$, roll out $n$ trajectories using policy $pi$:
 
-- For episodic tasks, roll out until termination
+- For episodic tasks, roll out until termination.
 - For continuing tasks, roll out to a length (typically
   $H = O(1 \/(1 - gamma))$ ) such that omitting the
-  future rewards has minimal impact ("small truncation error")
-- Let $hat(V)^pi(s)$ (will just write $V(s)$ ) be the average
-  discounted return
+  future rewards has minimal impact ("small truncation error").
+- Let $hat(V)^pi(s)$ (written as $V(s)$ below) be the average
+  discounted return.
 
 *Online Monte-Carlo*
 
-- For $i = 1, 2, ...$ as the index of trajectories
+- For $i = 1, 2, ...$ as the index of trajectories:
   - Draw a starting state $s_i$ from the exploratory initial
     distribution, roll out a trajectory using $pi$ from $s_i$ , and let
-    $G_i$ be the (random) discounted return
+    $G_i$ be the (random) discounted return.
   - Let $n (s_i)$ be the number of times $s_i$ has appeared as an
     initial state. If $n (s_i) = 1$ (first time seeing this state), let
     $V (s_i) <- G_i$ (where
-    $G_t = sum_(t' = t)^(t + H) gamma^(t' - t) r_(t')$ )
+    $G_t = sum_(t' = t)^(t + H) gamma^(t' - t) r_(t')$ ).
   - Otherwise,
     $V (s_i) <- frac(n (s_i) - 1, n (s_i)) V (s_i) + frac(1, n (s_i)) G_i$
 
-No need to store the trajectory.
+No need to store the full trajectory.
 
-More generally,
+More generally, the update rule can be written as:
 
 $ V(s_i) <-(1 - alpha) V(s_i) + alpha G_i $
 
-or
+or equivalently,
 
 $ V (s_i) <- V (s_i) + alpha (G_i - V (s_i)) $
 
-where $alpha$ is known as learning rate, and $G_i$ as the target.
+where $alpha$ is the *learning rate* and $G_i$ is the *target*.
 
 #footnote[
-  It can be interpreted as stochastic gradient descent. If we have i.i.d.
+  This can be interpreted as stochastic gradient descent. If we have i.i.d.
   real random variables $v_1, v_2, ..., v_n$ , the average is the
   solution of the least-square optimization problem:
 
@@ -673,83 +653,87 @@ where $alpha$ is known as learning rate, and $G_i$ as the target.
 
 == Every-visit Monte-Carlo
 
-Suppose we Have a continuing task. What/if we cannot set the starting
-state arbitrarily?
+Suppose we have a continuing task and cannot set the starting
+state arbitrarily.
 
-i.e.~we have a single *long* trajectory with length $N$
+In this case, we have a single *long* trajectory with length $N$:
 
 $ s_1, a_1, r_1, s_2, a_2, r_2, s_3, a_3, r_3, ... $
 
-- we can truncate $N \/ H$ truncations with length
-  $H = O(1 \/(1 - gamma))$ from the long trajectory.
-- we can shift the $H$ -length window by 1 each time and get
-  $N - H + 1 approx N$ truncations.
+- We can extract $N \/ H$ truncated segments, each of length
+  $H = O(1 \/(1 - gamma))$.
+- Alternatively, we can shift the $H$-length window by 1 each time and get
+  $N - H + 1 approx N$ overlapping segments.
 
 This "walk" through the state space should have non-zero probability on
-each state, i.e.~do not starve every states.
+each state, i.e.~do not starve any state of visits.
 
-What if a state occures multiple times on a trajectory?
+What if a state occurs multiple times on a trajectory?
 
-- approach 1: only the first occurance is used
-- approach 2: all the occurances are used
+- Approach 1 (*first-visit*): only the first occurrence is used.
+- Approach 2 (*every-visit*): all occurrences are used.
 
-= Alternative Approach: TD(0)
+= Temporal Difference Learning
+
+== TD(0)
 
 Again, suppose we have a single long trajectory
 $s_1, a_1, r_1, s_2, a_2, r_2$ ,
-$s_3, a_3, r_3, s_4, ...$ in a continuing task
+$s_3, a_3, r_3, s_4, ...$ in a continuing task.
 
-TD(0): for
-$t = 1, 2, ..., V (s_t) <- V (s_t) + alpha (r_t + gamma V (s_(t + 1)) - V (s_t))$
+TD(0) performs the following update at each time step:
+
+For
+$t = 1, 2, ..., quad V (s_t) <- V (s_t) + alpha (r_t + gamma V (s_(t + 1)) - V (s_t))$
 
 / TD: #block[
-    temporal difference
+    Temporal Difference.
   ]
 
-/ TD\_error: #block[
+/ TD error: #block[
     $r_t + gamma V (s_(t + 1)) - V (s_t)$
   ]
 
-Same as Monte-Carlo update rule, excepts that the "target" is
-$r_t + gamma V (s_(t + 1))$ , which is similar to the
-#link(<model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd>)[empirical Bellman update].
+The update rule is the same as Monte-Carlo, except that the "target" is
+$r_t + gamma V (s_(t + 1))$ instead of $G_t$. This target is similar to the
+#link(<model-based-rl-with-a-sampling-oracle-certainty-equivalence-contd>)[Empirical Bellman Update].
 
 Recall that in
 #link(<monte-carlo-value-prediction>)[Monte-Carlo],
 the "target" is $G_t = sum_(t' = t)^(t + H) gamma^(t' - t) r_(t')$ and
-is *independent* to the current value function. While in TD(0),
-the target $r_t + gamma V (s_(t + 1))$ is dependent to the current value
-function $V$ . i.e.
+is *independent* of the current value function. In TD(0),
+the target $r_t + gamma V (s_(t + 1))$ *depends* on the current value
+function $V$.
 
 Compared to value iteration:
 
 $ V_(k + 1)(s) := EE_(r, s'|s, pi) [r + gamma V_k (s')] $
 
-and the equation above is
+The empirical approximation is:
 
-$ approx 1 / n sum_(i = 1)^n (r_i + r V_k (s'_i)) $
+$ approx 1 / n sum_(i = 1)^n (r_i + gamma V_k (s'_i)) $
 
-which is an approximate Value Iteration process, and notice that the
-whole iteraton through $i = 1, ..., n$ is only 1 iteration (a
-$V_k$ ), so an outside loop is needed if we want to $V$ approximates
-real $V^pi$ .
+This is an approximate Value Iteration process. Note that the
+whole iteration through $i = 1, ..., n$ constitutes only one iteration (one
+$V_k$), so an outer loop is needed for $V$ to approximate
+the true $V^pi$.
 
-== Understanding TD(0)
+=== Understanding TD(0)
 
-The "approximate" Value Iteration process above is similar to TD(0) but
+The approximate Value Iteration process above is similar to TD(0) but
 slightly different: it uses a value function $V$ (which stays constant
-during updates) to update $V'$ which is another function. After long
+during updates) to compute $V'$, which is a new function. After long
 enough, we have $V' = cal(T)^pi V$ and do $V <- V'$ , then repeat
-the process. Finally converges to $V^pi$ .
+the process. This eventually converges to $V^pi$.
 
-But in TD(0), we uses $V$ to update itself. The difference is
-"synchronous" vs "asynchronous".
+But in TD(0), we use $V$ to update itself. The difference is
+"synchronous" (Value Iteration) vs "asynchronous" (TD(0)).
 
-#footnote[
-  TD(0) is less stable 
-]
+#tufted.margin-note[TD(0) is less stable than the synchronous version because updates immediately affect subsequent computations within the same sweep.]
 
-= TD( $lambda$ ): Unifying TD(0) and MC
+== TD( $lambda$ ): Unifying TD(0) and MC
+
+TD($lambda$) interpolates between TD(0) and Monte-Carlo by using multi-step bootstrap targets:
 
 - 1-step bootstrap (TD(0)): $r_1 + gamma V(s_(i + 1))$
 - 2-step bootstrap: $r_1 + gamma r_(i + 1) + gamma^2 V(s_(i + 2))$
@@ -758,32 +742,30 @@ But in TD(0), we uses $V$ to update itself. The difference is
 - …
 - $oo$ -step bootstrap:
   $r_1 + gamma r_(i + 1) + gamma^2 r_(i + 2) + gamma^3 r_(i + 3) + ...$
-  is Monte-Carlo.
+  recovers Monte-Carlo.
 
-== Proof of TD( $lambda$ )'s correctness
+=== Proof of Correctness
 
-E.g. in 2-step bootstrap,
-
-With #link("https://en.wikipedia.org/wiki/Law_of_total_expectation")[Law of total expectation],
+E.g. for the 2-step bootstrap, using the #link("https://en.wikipedia.org/wiki/Law_of_total_expectation")[Law of Total Expectation]:
 
 $
   & EE[r_1 + gamma r_(t + 1) + gamma^2 V(s_(t + 2))|s_t]\
-  = & EE[r_t + gamma(r_(t + 1) + gamma V(s_(t r)))|s_t]\
-  = & EE[r_t] + gamma EE_(s_(t + 1) |s_t) #scale(x: 120%, y: 120%)[\[] EE[(r_(t + 1) + gamma V(s_(t r)))| s_t, s_(t + 1)] #scale(x: 120%, y: 120%)[\]]\
-  = & EE[r_t + gamma(cal(T)^pi)(s_(t + 1))|s_t]\
+  = & EE[r_t + gamma(r_(t + 1) + gamma V(s_(t + 2)))|s_t]\
+  = & EE[r_t] + gamma EE_(s_(t + 1) |s_t) #scale(x: 120%, y: 120%)[\[] EE[(r_(t + 1) + gamma V(s_(t + 2)))| s_t, s_(t + 1)] #scale(x: 120%, y: 120%)[\]]\
+  = & EE[r_t + gamma(cal(T)^pi V)(s_(t + 1))|s_t]\
   = &((cal(T)^pi)^2 V)(s)
 $
 
-== TD( $lambda$ )
+=== TD( $lambda$ )
 
-For n-step bootstrap, give a $(1 - lambda) lambda^n$ weight.
+For the $n$-step bootstrap, give a $(1 - lambda) lambda^n$ weight:
 
-- $lambda = 0$ : Only n=1 gives the full weight. TD(0).
-- $lambda -> 1$ : (almost) Monte-Carlo.
+- $lambda = 0$ : Only $n=1$ receives the full weight. This is TD(0).
+- $lambda -> 1$ : Approaches Monte-Carlo.
 
-=== forward view and backward view
+=== Forward View and Backward View
 
-Forward view
+*Forward view*: looking forward from each time step, combine future returns with exponentially decaying weights.
 
 $
  (1 - lambda) dot (r_1 + gamma V(s_2) - V(s_1))\
@@ -792,33 +774,23 @@ $
   ...
 $
 
-and so on.
-
-Backward view
+*Backward view*: looking backward from each reward, distribute credit to past states with exponentially decaying eligibility.
 
 $ 1 dot (r_1 + gamma V(s_2) - V(s_1))\
 lambda gamma dot (r_2 + gamma V(s_3) - V(s_2))\
 lambda^2 gamma^2 dot (r_3 + gamma V(s_4) - V(s_3))\
-... $ 
+... $
 
 = Value Prediction with Function Approximation
 <value-prediction-with-function-approximation>
 
-tabular representation vs. function approximation:
-#block[
-  function approximation can handle infinite state space (can't enumerate
-  through all states).
-]
+*Tabular representation vs. function approximation*: Function approximation can handle infinite or very large state spaces where we cannot enumerate all states.
 
-linear function approximation:
-#block[
-  design features $phi.alt(s) in RR^d$ ("featurizing states"), and
-  approximate $V^pi(s) approx theta^top phi.alt(s) + b$, where $theta$ should be fixed among features (in the following parts, $b$ is *ignored* because it can be reached by appending a $1$ to the feature vector)
-]
+*Linear function approximation*: Design features $phi.alt(s) in RR^d$ ("featurizing states") and approximate $V^pi(s) approx theta^top phi.alt(s) + b$. The parameter $theta$ is shared across all states.
 
-#block[
-   tabular value function can be interpreted as feature vector $in RR^S$ : $[0, ..., 0, 1, 0, ..., 0]$ where the position of the $1$ indicates the state.
-]
+#tufted.margin-note[In the following, the bias $b$ is ignored because it can be absorbed by appending a constant $1$ to the feature vector.]
+
+A tabular value function can be interpreted as a special case: the feature vector is $phi.alt(s) in RR^(|S|)$, an indicator vector $[0, ..., 0, 1, 0, ..., 0]$ where the position of the $1$ indicates the state.
 
 == Example: Tetris Game
 
@@ -827,60 +799,59 @@ linear function approximation:
   caption: [Tetris Game]
 )
 
-The state space is exponentially large: each block be occupied / not
-occupied.
+The state space is exponentially large: each cell can be occupied or not.
 
-Featurize: \# of blocks on each column. In the example, the feature is $(4,4,5,4,3,3,3)$
+Featurization: count the number of blocks on each column. In the example, the feature is $(4,4,5,4,3,3,3)$.
 
-== Monte-Carlo Vaule Prediction
+== Monte-Carlo Value Prediction with Function Approximation
 
 $ V^pi (s) = EE [G|s] = arg min_(f : S -> RR) EE [(f(s) - G)^2] $
 
-Is a regression problem.
+This is a regression problem: find the function $f$ that best predicts the return $G$ from state $s$.
 
 #footnote[
-  Why the expectation is the argmin? See #link(<bias-variance-note>)[here].
+  Why is the conditional expectation the argmin? See @lemma:bias-variance.
 ]
 
-The same idea applies to non-linear value function approximation More
-generally & abstractly, think of function approximation as searching
-over a restricted *function space*, which is a set whose members
+The same idea applies to non-linear value function approximation. More
+generally, think of function approximation as searching
+over a restricted *function space* $cal(F)$, whose members
 are functions that map states to real values.
 
-E.g. a function space of linear value function approximation:
+E.g. the function space of linear value function approximation:
 
 $ cal(F) = {V_theta : theta in RR^(d)} ", where " V_theta (s) = theta^top phi.alt(s) $
 
-- typically only a small subset of all possible functions
-- Using "all possible functions" = tabular!
+- This is typically only a small subset of all possible functions.
+- Using "all possible functions" is equivalent to tabular representation.
 - Equivalently, tabular MC value prediction can be recovered by choosing
-  $phi.alt$ as the identity features $phi.alt(s) = {II [s = s']}_(s' in S)$
+  $phi.alt$ as the identity features $phi.alt(s) = {II [s = s']}_(s' in S)$.
 
-Find the function:
+We find the best approximation by minimizing the empirical loss:
 
 $ min_(V_theta in cal(F)) 1 / n sum_(i = 1)^n (V_theta (s_i) - G_i)^2 $
 
-SGD: uniformly sample $i$ and
+SGD: uniformly sample $i$ and update:
 
 $ theta <- theta - alpha dot (V_theta (s_(i)) - G_(i)) dot nabla V_theta (s_(i)) $
 
-== Interprete Td(0) with Linear Approximation
+== Interpreting TD(0) with Tabular Representation
 
-TD(0) iteration is equivalent to
+In the tabular setting, the TD(0) update is equivalent to:
 
 $ theta <- theta + alpha (G_t - phi.alt (s_t)^top theta) phi.alt (s_t) . $
 
 Here $theta$ is the tabular value function and $phi.alt$ is
 $\[ 0, ..., 0, 1, 0, ..., 0]$ , as mentioned
-#link(<value-prediction-with-function-approximation>)[here].
+#link(<value-prediction-with-function-approximation>)[above].
 
 == TD(0) with Linear Approximation
 
-In TD(0), we do
+In TD(0), we perform:
 
 $ V (s_t) <- V (s_t) + alpha (r_t + gamma V (s_(t + 1)) - V (s_t)), $
 
-which, with all steps on $t$ , gets
+which, across all time steps $t$, corresponds to:
 
 $ V_(k + 1) <- cal(T)^pi V_k . $
 
@@ -888,98 +859,98 @@ i.e.
 
 $ V_(k + 1)(s) = EE_pi [r + gamma V_k (s')|s] $
 
-Similar to Linear Approximation, *rewriting expectation with a regression problem*,
+Similar to MC with function approximation, we can *rewrite the expectation as a regression problem*:
 
 $
   V_(k + 1) (s) =
-  arg min_(f : s -> RR) EE_pi [(f(s) -(r + gamma V_s))^2] \
-  approx arg min_(V_theta in scr(F)) 1/n sum_(i = 1)^n (V_theta (s_i) - r_i - gamma V_k (s^prime))^2 .
+  arg min_(f : S -> RR) EE_pi [(f(s) -(r + gamma V_k (s')))^2] \
+  approx arg min_(V_theta in cal(F)) 1/n sum_(i = 1)^n (V_theta (s_i) - r_i - gamma V_k (s'_i))^2 .
 $
 
-And the SGD steps should be
+And the SGD update is:
 
-$ theta <- theta + alpha (V_theta (s_t) - r_t - gamma V_k (s_(t + 1))) nabla V_theta (s_t) $
+$ theta <- theta + alpha (r_t + gamma V_k (s_(t + 1)) - V_theta (s_t)) nabla V_theta (s_t) $
 
 
 Recall the Bellman Equation:
 
 $
-  (T^pi f)(s, a) & = R(s, a) + gamma EE_(s'~P(k, a)) [f (s', pi)] \
+  (cal(T)^pi f)(s, a) & = R(s, a) + gamma EE_(s'~P(dot|s, a)) [f (s', pi)] \
                  & = EE [r + gamma dot f (s', pi)|s, a] .
 $
 
-with empirically equals to:
+which empirically equals:
 
-$ 1 / n sum_(i = 1)^n (r_i + gamma theta_(k_1) (s'_i, pi)) . $
+$ 1 / n sum_(i = 1)^n (r_i + gamma Q_(k-1) (s'_i, pi)) . $
 
-with tuples $(s_t, a_t, r_t, s_(t + 1))$ in the long
+With tuples $(s_t, a_t, r_t, s_(t + 1))$ from the long
 trajectory, applying the running average:
 
 $ Q_k (s_t, a_t) <- Q_k (s_t, a_t) + alpha(r_t + gamma Q_(k - 1)(s_(t + 1), pi) - Q_k (s_t, a_t)) $
 
-= SARSA
+= Control Methods
 
-$ Q (s_t, a_t) <- Q (s_t, a_t) + alpha (r_t + gamma Q (s_t + 1, a_t + 1) - Q (s_t, a_t)) $
+== SARSA
 
-Notice that SARSA is not applicable for deterministic policy, because it
+SARSA updates Q-values using the action actually taken in the next state:
+
+$ Q (s_t, a_t) <- Q (s_t, a_t) + alpha (r_t + gamma Q (s_(t + 1), a_(t + 1)) - Q (s_t, a_t)) $
+
+Notice that SARSA is not applicable for deterministic policies, because it
 requires a non-zero probability distribution over *all*
-st0ate-action pairs ( $forall(s, a) in S times A$ ), but the only
-possible action for a certain state is determined by the policy.
+state-action pairs ( $forall(s, a) in S times A$ ), but a deterministic policy assigns probability 1 to a single action per state.
 
-== SARSA with $epsilon.alt$-greedy policy
+=== SARSA with $epsilon.alt$-greedy Policy
 
-How are the $s, a$ data pairs picked in SARSA?
+How are the state-action data pairs chosen in SARSA?
 
-At each time step t, with probability $epsilon.alt$ , choose a from the
-action space uniformly at random. otherwise, $a_t = arg max_a Q(s_t , a)$
+At each time step $t$, with probability $epsilon.alt$, choose $a$ from the
+action space uniformly at random. Otherwise, $a_t = arg max_a Q(s_t , a)$.
 
 #footnote[
-  When sampling s-a-r-s-a tuple along the trajectory, the first action in
-  the tuple is actually generated with last version of $Q$ , so we can say
-  SARSA is not 100% "on policy".
+  When sampling an $(s, a, r, s', a')$ tuple along the trajectory, the first action in
+  the tuple was actually generated with the previous version of $Q$, so SARSA is not 100% "on-policy".
 ]
 
-== Does SARSA converge to optimal policy?
+=== Does SARSA Converge to the Optimal Policy?
 
-The cliff example (pg 132 of Sutton & Barto)
+The cliff example (pg 132 of Sutton & Barto):
 
-- Deterministic navigation, high penalty when falling off the clif
-- Optimal policy: walk near the cliff
-- Unless epsilon is super small, SARSA will avoid the cliff
+- Deterministic navigation with high penalty when falling off the cliff.
+- The optimal policy walks near the cliff edge.
+- Unless $epsilon.alt$ is extremely small, SARSA will learn to avoid the cliff.
 
 #figure(
   image("img/reinforcement-learning-lecture-15.png", width: 60%),
-  caption: [cliff example],
+  caption: [The cliff example],
 )
 
-The optimal path is along the side of the cliff, but on this path, the
-$epsilon.alt$ -greedy SARSA will often see large penalty (falling off
-the cliff) and therefore, choose the safe path instead.
+The optimal path runs along the side of the cliff, but on this path the
+$epsilon.alt$-greedy exploration will frequently cause the agent to fall off (incurring a large penalty). Therefore, SARSA converges to the safer path instead.
 
-== softmax
+=== Softmax
 <softmax>
 
-$epsilon.alt$-greedy can be replaged by softmax: chooses action a with
+The $epsilon.alt$-greedy exploration can be replaced by a *softmax* policy: choose action $a$ with
 probability
 
 $ frac(exp(Q(s, a) \/ T), sum_(a') exp(Q(s, a') \/ T)) $
 
-= where $T$ is temperature.
+where $T$ is the temperature parameter.
 
-= Q-learning
+== Q-learning
 
-Update rule:
+Q-learning uses the *maximum* Q-value at the next state, regardless of the action actually taken:
 
 $ Q (s_t, a_t) <- Q (s_t, a_t) + alpha (r_t + gamma max_(a') Q (s_(t + 1), a') - Q (s_t, a_t)) $
 
-Q-learning is off-policy: how we take actions have nothing to do with
-our current Q-estimate (or its greedy policy). i.e.~Q-learning always
-taks $max_(a') Q (s_(t + 1), a')$ no matter what the real policy is.
+Q-learning is *off-policy*: the update always
+takes $max_(a') Q (s_(t + 1), a')$ regardless of what the behavior policy actually chooses. This means Q-learning converges to the optimal policy regardless of the exploration strategy.
 
-e.g.~in the cliff setting, the optimal can always be found, no matter
-the choice of $epsilon.alt$ .
+E.g.~in the cliff setting, the optimal policy can always be found, no matter
+the choice of $epsilon.alt$.
 
-== Exercise: Multi-step Q-learning?
+=== Exercise: Multi-step Q-learning?
 
 Does the target
 $r_t + gamma r_(t + 1) + gamma^2 max_(a') Q (s_(t + 2), a')$ work? If
@@ -990,64 +961,63 @@ No.~Because it leads to
 $ Q <- cal(T)^pi cal(T) Q $
 
 #footnote[
-  This resulting $cal(T)^pi cal(T) ... cal(T)^pi cal(T) Q$ is also a
-  optimal policy, but for another MDP, i.e. on odd steps, follow $pi$ , on
-  even steps, free to decide.
+  The resulting $cal(T)^pi cal(T) ... cal(T)^pi cal(T) Q$ does converge to a fixed point, but it is the optimal policy for a *different* MDP: one where on odd steps the agent follows $pi$, and on even steps the agent is free to choose any action.
 ]
 
-= Q-learning with experience replay
+== Q-learning with Experience Replay
 
-So far most algorithms we see are "one-pass"
+So far most algorithms we have seen are "one-pass":
 
-- i.e., use each data point once and discard them
-- \# updates $=$ \# data points
-- Concern 1: We need many updates for optimization to converge Can we separate optimization from data collection?
-- Concern 2: Need to reuse data if sample size is limited Sample (with replacement) a tuple randomly from the bag, and apply the Q-learning update rule.
-- \# updates $>>$ \# data points
+- Each data point is used once and then discarded.
+- Number of updates $=$ number of data points.
+- Concern 1: We need many updates for optimization to converge. Can we separate optimization from data collection?
+- Concern 2: We need to reuse data if sample size is limited.
 
-Each time get a new tuple, put in bag, and do updates for several times.
+*Experience replay* addresses both concerns: store all transition tuples $(s, a, r, s')$ in a replay buffer, sample (with replacement) a tuple randomly from the buffer, and apply the Q-learning update rule.
 
-Not applicable for on-policy controls (e.g.~SARSA).
+- Number of updates $>>$ number of data points.
+- Each time a new tuple is collected, add it to the buffer and perform several updates.
 
-= A Question
+#tufted.margin-note[Experience replay is not applicable for on-policy methods (e.g.~SARSA), because the data distribution must match the current policy.]
+
+= Mean Squared Bellman Error
+
+Consider minimizing the squared error between $V_theta (s)$ and its bootstrap target:
 
 $ EE_(s, r, s') [(V_theta (s) - r - gamma V_theta (s'))^2] $
 
-We do
-$V_theta (s) <- V_theta (s) + alpha(r - gamma V_theta (s') - V_theta (s))$
-in TD(0).
+In TD(0), we perform
+$V_theta (s) <- V_theta (s) + alpha(r + gamma V_theta (s') - V_theta (s))$.
 
-What if we minimize the square error between $V_theta (s)$ and its target,
-i.e. $EE_(s, r, s') [(V_theta (s) - r - gamma V_theta (s'))^2]$?
+What if we instead directly minimize the mean squared Bellman error (MSBE)?
 
-Not correct. By @lemma:bias-variance, It can be decomposed as the sum of 2 parts:
+By @lemma:bias-variance, the MSBE can be decomposed as the sum of two parts:
 
 - $EE_s [(V_theta (s) - (cal(T)^pi V_theta)(s))^2]$
-  - good. It's L-2 norm Bellman Error.
+  — this is the $L^2$-norm Bellman error, which is desirable to minimize.
 - $gamma^2 EE_s ["Var"_(s'|s, pi(s)) [V_theta (s')]]$
-  - Not good. It penalize policy with large variance.
-  - OK for deterministic environment because the variance is always $0$
-    in this case.
+  — this term penalizes value functions with large variance, which is undesirable.
+  - This is acceptable for deterministic environments where the variance is always $0$.
 
 #lemma(name: "Bias-Variance Decomposition")[
-  Let $X, Y$ be two random variables that follow some joint distributions over $cal(X) times RR$.
+  Let $X, Y$ be two random variables that follow some joint distribution over $cal(X) times RR$.
 
-  Let $f : cal(X) -> RR$ be a real-valued function. Prove that
+  Let $f : cal(X) -> RR$ be a real-valued function. Then:
   $ EE [(Y - f(X))^2] - EE [(f(X) - EE[Y|X])^2] = EE [(Y - EE[Y|X])^2]. $
 ] <lemma:bias-variance>
-  
+
 
 #proof(name: "Bias-Variance Decomposition")[
-  It suffies to prove
+  It suffices to prove
   $
     EE [(Y - f(X))^2 -(f(X) - EE [Y|X])^2 -(Y - EE [Y|X])^2] = 0 \
     "i.e." quad EE [(E [Y | X] - Y)(E [Y | X] - f(X))] = 0 .
   $
   Given $E[Y|X]$ is a function of $X$ , let $g(X) := E[Y|X] - f(X)$,
-  then it suffies to prove
+  then it suffices to prove
   $ EE[EE[Y|X] g(X)] = EE[Y g(X)]. $
-  
-  then
+
+  Then:
   $
     "LHS" & = sum_(x_i) EE[Y|X = x_i] g(x_i) P_X (x_i)\
     & = sum_(x_i) g(x_i) P_X (x_i) sum_(y_i) y_i frac(P_(X, Y)(x_i, y_i), P_X (x_i))\
@@ -1057,43 +1027,42 @@ Not correct. By @lemma:bias-variance, It can be decomposed as the sum of 2 parts
 ]
 
 #footnote[
-  Let $f : cal(X) -> RR$ be a estimator from $X$ to $Y$ , this
-  equation shows that square error ( $l_2$ loss) 
+  Let $f : cal(X) -> RR$ be an estimator from $X$ to $Y$. This
+  decomposition shows that the squared error ($ell_2$ loss)
   $EE [(Y - f(X))^2]$ is at least
   $EE [(Y - EE[Y|X])^2]$ for all $f$,
-  and thus cannot be arbitrarily small.
+  and thus cannot be made arbitrarily small.
 ]
 <bias-variance-note>
 
-== Solution
+== Solution: Double Sampling
 
-If we have a simulator, for each $s$ in data, draw another independent
-state transition.
+If we have a simulator, for each $s$ in the data, draw another independent
+next-state transition.
 
-Minimize objective
+Minimize objective:
 
 $ EE \[(V_theta (s) - r - gamma V_theta (s'_A)) lr((V_theta (s) - r - gamma V_theta (s'_B)]) $
 
-"Double sampling" and Baird's residual algorithm (Bellman residual
-minimization).
+This is called "double sampling" and is the basis of Baird's residual algorithm (Bellman residual minimization).
 
-= Convergence
+= Convergence of TD with Function Approximation
 
-- TD with function approximation can diverge in general
-- Is it because of…
-  - Randomness in SGD?
-    - Nope. Even the batch version doesn't converge
-  - Sophisticated, non-linear func approx?
-    - Nope. Even linear doesn't converge.
-  - That our function class does not capture V”?
-    - Nope. Even if V” can be exactly represented in the function class
-      ("realizable"), it still does not converge.
+TD with function approximation can diverge in general. The cause is perhaps surprising:
 
-== example
+- Is it because of randomness in SGD?
+  - No. Even the batch (full-gradient) version does not converge.
+- Is it because of sophisticated, non-linear function approximation?
+  - No. Even linear function approximation does not converge.
+- Is it because the function class does not capture $V^pi$?
+  - No. Even if $V^pi$ can be exactly represented in the function class
+    ("realizable"), it still does not converge.
 
-For a MDP: $1 -> 2 -> ... -> 9 -> 10$ with reward $~"Ber"(0.5)$
+== Example: Divergence of TD with Function Approximation
 
-iterations
+Consider an MDP: $1 -> 2 -> ... -> 9 -> 10$ with reward $~"Ber"(0.5)$.
+
+Value iteration converges to the true values:
 
 #figure(
   table(
@@ -1109,7 +1078,7 @@ iterations
   kind: table,
 )
 
-Assume the function space has to possible values at each state:
+Now suppose the function space has two possible value vectors at each state:
 
 #figure(
   table(
@@ -1125,13 +1094,13 @@ Assume the function space has to possible values at each state:
 
 (0.5 and *0.502* have the same distance to *0.501*; 0.5 and *0.504* have the same distance to *0.502*; ...)
 
-then
+Then the projected Bellman iteration yields:
 
 #figure(
   table(
     columns: 6,
     align: (auto, auto, auto, auto, auto, auto),
-    table.header([\#Ite], [1], [2], […], [9], [10]),
+    table.header([\#Iter], [1], [2], […], [9], [10]),
     table.hline(),
     [1], [], [], [], [], [0.501],
     [2], [], [], [], [0.502], [0.501],
@@ -1141,20 +1110,17 @@ then
   kind: table,
 )
 
-Value deviates from 0.501 as iteration goes.
+The value deviates from 0.501 as the iteration progresses. Intuitively, the function space is a *plane* (or low-dimensional subspace). The result of each Bellman update generally does not lie on this plane, so we must project back. These projections can amplify errors across iterations.
 
-Say the function space is a *plane*, than the results of each
-iteration (bellman operator) is not on the plane, instead, their
-*projections* are picked.
-
-= Importance Sampling
+= Off-Policy Evaluation with Importance Sampling
 <importance-sampling>
 
-We can only sample $x~q$ but want to estimate
-$EE_(x~p) f(x)$
+== Importance Sampling
 
-Importance Sampling (or importance weighted, or inverse propensity
-yscore Ps estimator):
+Suppose we can only sample $x~q$ but want to estimate
+$EE_(x~p) f(x)$.
+
+The *Importance Sampling* (IS) estimator (also called the inverse propensity score estimator) is:
 
 $ frac(p(x), q(x)) f(x) $
 
@@ -1162,131 +1128,130 @@ Unbiasedness:
 
 $ EE_(x~q) [frac(p(x), q(x)) f(x)] = sum_x q(x) (frac(p(x), q(x)) f(x)) = sum_x p(x) f(x) = EE_(x~p)[f(x)] $
 
-= Application in contextual bandit (CB)
+== Application in Contextual Bandits (CB)
 
-- The data point is a tuple $(x, a, r)$
-- The function of interest is $(x, a, r) mapsto r$
-- The distribution of interest is
-  $x~d_0, a~pi, r~R(x, a)$
-  - Let the joint density be $p(x, a, r)$
+- The data point is a tuple $(x, a, r)$.
+- The function of interest is $(x, a, r) mapsto r$.
+- The target distribution is
+  $x~d_0, a~pi, r~R(x, a)$.
+  - Let the joint density be $p(x, a, r)$.
 - The data distribution is
-  $x~d_0, a~pi_b, r~R(x, a)$
-  - Let the joint density be $q(x, a, r)$
+  $x~d_0, a~pi_b, r~R(x, a)$.
+  - Let the joint density be $q(x, a, r)$.
 - IS estimator:
-  $frac(p(x, a, r), q(x, a, r)) dot r$
-- Write down the densities
+  $frac(p(x, a, r), q(x, a, r)) dot r$.
+- Write down the densities:
   - $p(x, a, r) = d_0(x) dot pi(a|x) dot R(r|x, a)$
   - $q(x, a, r) = d_0(x) dot pi_b (a|x) dot R(r|x, a)$
-  - To compute importance weight, you don't need knowledge of $mu$ or
-    $R$ ! You just need $pi_b$ (or even just $pi_b (a|x)$ ,
-    "proposal prob.")
-- Let $rho$ be a shorthand for $pi(a|x)$ , so estimator is
-  $rho dot r$
-- $pi_b$ need to "cover" $pi$
-  - i.e., whenever $pi(a|x) > 0$ , we need\$ \_b(a x)\>0\$
+  - To compute the importance weight, you don't need knowledge of $d_0$ or
+    $R$! You just need $pi_b$ (or even just $pi_b (a|x)$ ,
+    the "proposal probability").
+- Let $rho$ be a shorthand for $pi(a|x) \/ pi_b(a|x)$ , so the estimator is
+  $rho dot r$.
+- $pi_b$ needs to "cover" $pi$:
+  - i.e., whenever $pi(a|x) > 0$, we need $pi_b (a|x) > 0$.
 - A special case:
   - $pi$ is deterministic, and $pi_b$ is uniformly random
-    $(pi_b (a|x) equiv 1 \/ |A|)$
+    $(pi_b (a|x) equiv 1 \/ |A|)$.
   - $frac(II[a = pi(x)], 1 \/ |A|) r$
-    - only look at actions that match what $pi$ wants to take and
-      discard other data points
-    - If match, $rho = |A|$ \; mismatch: $rho = 0$
-  - On average: only $1 \/ |A|$ portion of the data is useful
+    - Only look at actions that match what $pi$ wants to take and
+      discard other data points.
+    - If match, $rho = |A|$; mismatch: $rho = 0$.
+  - On average: only $1 \/ |A|$ portion of the data is useful.
 
-== A note about using IS
+=== A Note about Using IS
 
-- We know that shifting rewards do not matter (for planning purposes)
-  for fixed-horizon problems
-- However, when you apply IS, shifting rewards do impact the variance of
-  the estimator
+- Shifting rewards does not matter for planning purposes in fixed-horizon problems.
+- However, when applying IS, shifting rewards *does* impact the variance of
+  the estimator.
 - Special case:
   - deterministic $pi$ , uniformly random $pi_b$ ,
   - reward is deterministic and constant: regardless of $(x, a)$ ,
-    reward is always 1 (without any randomness)
-  - We know the value of any policy is 1
-  - On-policy MC has 0 variance
+    reward is always 1.
+  - We know the value of any policy is 1.
+  - On-policy MC has 0 variance.
   - IS still has high variance!
-- Where does variance come from?
+- Where does the variance come from?
 
 $
   & 1 / n sum_(i = 1)^n frac(II [a^((i)) = pi (x^((i)))], 1 \/ |A|) dot r^((i)) = sum_(i = 1)^n frac(II [a^((i)) = pi (x^((i)))] dot r^((i)), n \/ |A|)\
   & = frac(1, n \/ |A|) sum_(i : a^((i)) = pi (x^((i)))) r^((i))
 $
 
-Because $n \/ |A|$ is the *expectaton* of \# of sampling
-$a^((i))$ matches $pi$ but not the true \# of matched samples, which
+Because $n \/ |A|$ is the *expected* number of samples where
+$a^((i))$ matches $pi$, not the true number of matched samples, which
 causes variance.
 
-Solution: use true \# of matched samples as denometer,
+Solution: use the true number of matched samples as the denominator:
 
-$ frac(1, |{ i : a^((i)) = pi^((i)) }|) sum_(a^((i)) = pi^((i))) r_i $
+$ frac(1, |{ i : a^((i)) = pi(x^((i))) }|) sum_(a^((i)) = pi(x^((i)))) r_i $
 
-= Multi-step IS in MDPs
+This is called the *self-normalized IS estimator*.
+
+== Multi-step IS in MDPs
 <multi-step-is-in-mdps>
 
 - Data: trajectories starting from $s_1~d_0$ using $pi_b$
-  (i.e., $a_t~pi_b (s_t)$ ) (for simplicity, assume process
-  terminates in $H$ time steps)
+  (i.e., $a_t~pi_b (s_t)$ ). For simplicity, assume the process
+  terminates in $H$ time steps.
 $ {(s_1^((i)), a_1^((i)), r_1^((i)), s_2^((i)), ..., s_H^((i)), a_H^((i)), r_H^((i)))}_(i = 1)^n $
-- Want to estimate $J(pi:= EE_(s~d_0) [V^pi(s)]$
-- Same idea as in bandit: apply IS to the entire trajectory
+- Want to estimate $J(pi) := EE_(s~d_0) [V^pi(s)]$.
+- Same idea as in the bandit case: apply IS to the entire trajectory.
 
- = =
-
-- define $tau$ as the whole trajectory. The function of interest is
-  $tau mapsto sum_(t = 1)^H gamma_partial^(t - 1) r_t$ .
-- Let the distribution of trajectory induced by $pi$ be $p(tau)$
-- Let the distribution of trajectory induced by $pi_b$ be $q(tau)$
+Define $tau$ as the whole trajectory. The function of interest is
+$tau mapsto sum_(t = 1)^H gamma^(t - 1) r_t$.
+- Let the distribution of trajectory induced by $pi$ be $p(tau)$.
+- Let the distribution of trajectory induced by $pi_b$ be $q(tau)$.
 - IS estimator:
-  $frac(p(tau), q(tau)) dot sum_(t = 1)^H gamma^(t - 1) r_t$
+  $frac(p(tau), q(tau)) dot sum_(t = 1)^H gamma^(t - 1) r_t$.
 
 How to compute $p(tau) \/ q(tau)$ ?
 
 - $p(tau) = d_0 (s_1) dot pi (a_1|s_1) dot P (s_2|s_1, a_1) dot pi (a_2|s_2) ... P (s_H|s_(H - 1), a_(H - 1)) dot pi (a_H|s_H)$
 - $q(tau) = d_0 (s_1) dot pi_b (a_1|s_1) dot P (s_2|s_1, a_1) dot pi_b (a_2|s_2) ... P (s_H|s_(H - 1), a_(H - 1)) dot pi_b (a_H|s_H)$
 
-Here all $P(dot|dot)$ terms are cancelled out.
+All $P(dot|dot)$ and $d_0$ terms cancel out.
 
-Let $rho_t = frac(pi (d_t|s_t), pi_b (a_t|s_t))$ , then
-$frac(p(tau), q(tau)) = product_(t = 1)^H rho_t = : rho_(1 : H)$
+Let $rho_t = frac(pi (a_t|s_t), pi_b (a_t|s_t))$ , then
+$frac(p(tau), q(tau)) = product_(t = 1)^H rho_t = : rho_(1 : H)$.
 
-== Examine the special case again
+=== Examine the Special Case
 
 - $pi$ is deterministic, and $pi_b$ is uniformly random
-  $(pi_b (a|x) equiv 1 \/ |A|)$
+  $(pi_b (a|x) equiv 1 \/ |A|)$.
 
 - $rho_t = frac(II [a_t = pi (s_t)], 1 \/ |A|)$
 
-- only look at trajectories where all actions happen to match what $pi$
-  wants to take
-  - Only if match, $rho = |A|^H$ \; mismatch: $rho = 0$
+- Only look at trajectories where *all* actions happen to match what $pi$
+  wants to take.
+  - If match: $rho = |A|^H$; mismatch: $rho = 0$.
 
-- == On average: only $1 \/ |A|^H$ portion of the data is useful
-  <on-average-only-1-ah-portion-of-the-data-is-useful>
+- On average, only $1 \/ |A|^H$ portion of the data is useful. This exponential scaling is the *curse of horizon* in importance sampling.
 
-= Policy Gradient
+= Policy Gradient Methods
 
-Given policy $pi_theta$, optimize
+Given a parametrized policy $pi_theta$, optimize
 $J (pi_theta) := EE_(s~d_0) [med V^(pi_theta)(s)]$
 where $d_0$ is the initial state distribution.
 
-- Use Gradient Ascent ($nabla_theta J (pi_theta)$)
-- an unbiased estimate can be obtained from a #strong[single on-policy
-    trajectory]
-- no need of the knowledge of $P$ and $R$ of the MDP
-- Similar to #link(<importance-sampling>)[IS]
+Key properties of the policy gradient approach:
 
-Note that when we use $pi$, we mean $pi_theta$ here, and
+- Use Gradient Ascent ($nabla_theta J (pi_theta)$).
+- An unbiased estimate can be obtained from a #strong[single on-policy
+    trajectory].
+- No need for knowledge of $P$ and $R$ of the MDP.
+- Similar to #link(<importance-sampling>)[Importance Sampling].
+
+Note that when we write $pi$, we mean $pi_theta$, and
 $nabla$ means $nabla_theta$.
 
-About PG:
+Why use policy gradient?
 
-- Goal: we want to find good policy.
-- Value-based RL is indirect
-- PG isn't based on value function
-  - It's possible a good policy don't match Bellman Equation.
+- Goal: find a good policy directly.
+- Value-based RL is indirect: it first estimates value functions and then derives a policy.
+- PG is not based on the Bellman equation, and it is possible for a good policy not to satisfy the Bellman equation exactly.
 
-== Example of policy parametrization
+== Example of Policy Parametrization
 
 Linear + softmax:
 
@@ -1296,19 +1261,17 @@ Linear + softmax:
 
 Recall in SARSA, we also used
 #link(<softmax>)[softmax]
-with temperature $T$. But in PG, we don't need it. Why?
+with temperature $T$. But in PG, we don't need a separate temperature parameter. Why?
 
-- In SARSA, softmax policy based on $Q$ function ------ $Q$ function cannot
-  be arbitrary.
-- In PG, $phi.alt(s, a)$ is arbitrary function ------ $T$ is
-  included.
+- In SARSA, the softmax policy is based on the $Q$ function, which has a fixed scale.
+- In PG, $theta^top phi.alt(s, a)$ is an arbitrary parametrization, so the scale of $theta$ already absorbs the temperature.
 
 == PG Derivation
 
-- The trajectory inducded by $pi$:
+- The trajectory induced by $pi$:
   $tau := (s_1, a_1, r_1, ..., s_H, a_H, r_H)$ and
   $tau~pi$.
-- Let $R(tau) := sum_(t = 1)^H gamma^(t - 1) r_t$
+- Let $R(tau) := sum_(t = 1)^H gamma^(t - 1) r_t$.
 
 $ J(pi) := EE_pi [sum_(t = 1)^H gamma^(t - 1) r_t] = EE_(tau~pi)[R(tau)] $
 
@@ -1330,50 +1293,49 @@ $
 $
 
 Note that this form is similar to that discussed in
-#link(<multi-step-is-in-mdps>)[Importance Sampling].
+#link(<multi-step-is-in-mdps>)[Importance Sampling]:
+the transition probabilities $P$ and the initial distribution $d_0$ cancel out.
 
 Given that
-$pi(a|s) = frac(e^(theta^top phi.alt(s, a)), sum_(a') e^(theta^top phi.alt(s, a')))$
-(denoted by $pi(a|s)$).
+$pi(a|s) = frac(e^(theta^top phi.alt(s, a)), sum_(a') e^(theta^top phi.alt(s, a')))$,
+we can compute:
 
 $
   & nabla log pi(a|s)\
-  = & nabla (log (e^(theta^top phi.alt (s, a'))) - log (sum_(a') e^(theta^top phi.alt (s, a'))))\
+  = & nabla (log (e^(theta^top phi.alt (s, a))) - log (sum_(a') e^(theta^top phi.alt (s, a'))))\
   = & phi.alt(s, a) - frac(sum_(a') e^(theta^top phi.alt(s, a')) phi.alt(s, a'), sum_(a') e^(theta^top phi.alt (s, a')))\
   = & phi.alt(s, a) - EE_(a'~pi)[phi.alt(s, a')]
 $
 
-Note that the expectation of the quantity above is $0$. i.e.
+Note that the expectation of this quantity over $a~pi$ is $0$:
 
 $
   EE_(a~pi)[phi.alt(s, a) - EE_(a'~pi)[phi.alt(s, a')]] = 0
 $
 
-*Couclusion*:
+*Conclusion*:
 
-So far we have
+So far we have:
 
 $ nabla J(pi) = EE_pi [(sum_(t = 1)^H gamma^(t - 1) r_t) (sum_(t = 1)^H nabla log pi(a_t|s_t))] $
 
-With the relation discussed above, we say
-$EE_pi [nabla log pi(a_t|s_t)] = sum_(a_t) nabla pi(a_t|s_t) = nabla 1 = 0$
-
-So, for $t' < t$, $r_(t')$ is independent to
-$nabla log pi(a_t|s_t)$, we have
+Using the relation $EE_pi [nabla log pi(a_t|s_t)] = sum_(a_t) nabla pi(a_t|s_t) = nabla 1 = 0$,
+and the fact that for $t' < t$, the reward $r_(t')$ is independent of
+$nabla log pi(a_t|s_t)$:
 
 $ EE_pi [nabla log pi(a_t|s_t) r_(t')] = EE_pi [nabla log pi(a_t|s_t)] EE_pi [r_(t')] = 0 $
 
-We can therefore rewrite the $nabla J(pi)$ as
+We can therefore drop past rewards and rewrite:
 
 $ nabla J(pi) = EE_pi [sum_(t = 1)^H (nabla log pi(a_t|s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] $
 
-== PG and Value-Based Method
+== PG and Value-Based Methods
 
-So far we have
+So far we have:
 
 $ nabla J(pi) = EE_pi [sum_(t = 1)^H (nabla log pi(a_t|s_t) sum_(t' = t)^H gamma^(t' - 1) r_(t'))] . $
 
-add a condition on expectation:
+By adding a condition on the expectation:
 
 $
   nabla J(pi) &=
@@ -1396,7 +1358,7 @@ $
           sum_(t' = t)^H gamma^(t' - 1) r_(t')
           | s_t, a_t
         ]
-        , gamma^(t - 1) Q_pi (s_t, a_t)
+        , gamma^(t - 1) Q^pi (s_t, a_t)
       )
   ] \
 
@@ -1412,15 +1374,15 @@ $
   [ Q^pi (s, a) nabla log pi(a|s) ]
 $
 
-== Blend PG and Value-Based Methods
+=== Blending PG and Value-Based Methods
 
-Instead of using MC estimate $sum_(t' = t)^H gamma^(t' - 1) r_t$ for
-$Q^pi (s_t, a_t)$, use an approximate value-function
-$hat(Q)_(s_t, a_t)$, often trained by TD, e.g. expected SARSA:
+Instead of using the MC estimate $sum_(t' = t)^H gamma^(t' - 1) r_(t')$ for
+$Q^pi (s_t, a_t)$, use an approximate value function
+$hat(Q)(s_t, a_t)$, often trained by TD, e.g. expected SARSA:
 
 $ Q(S_t , A_t) <- Q(S_t , A_t) + alpha [R_(t + 1) + gamma EE_pi [Q(S_(t + 1) , A_(t + 1)) | S_(t + 1)] - Q(S_t , A_t)] $
 
-=== Actor-critic
+=== Actor-Critic
 
 The parametrized *policy* is called the *actor*, and the
 *value-function* estimate is called the *critic*.
@@ -1433,37 +1395,14 @@ The parametrized *policy* is called the *actor*, and the
 
 === Baseline in PG
 
-for any $f : S -> RR$,
+For any function $f : S -> RR$,
 
 $ nabla J(pi) = frac(1, 1 - gamma) EE_(s~d^pi, a~pi(s)) [(Q^pi(s, a) - f(s)) nabla log pi(a|s)] $
 
-because $f(s)$ and $nabla log pi(s|a)$ are
-*independent*.
+because $f(s)$ is independent of $a$, and $EE_(a~pi) [nabla log pi(a|s)] = 0$.
 
-Choose $f = V^pi(s)$ and
+A common choice is $f = V^pi(s)$, which gives the *advantage function*:
 
 $ nabla J(pi) = frac(1, 1 - gamma) EE_(s~d^pi, a~pi(s)) [A^pi(s, a) nabla log pi(a|s)] $
 
-where $A$ is the advantage function. Bseline don't change the *expectation* of Gradient but lower the *variance*.
-
-= Policy Gradient
-
-Given policy $pi_theta$, optimize
-$J (pi_theta) := EE_(s~d_0) [med V^(pi_theta)(s)]$
-where $d_0$ is the initial state distribution.
-
-- Use Gradient Ascent ($nabla_theta J(pi_theta)$)
-- an unbiased estimate can be obtained from a #strong[single on-policy
-    trajectory]
-- no need of the knowledge of $P$ and $R$ of the MDP
-- Similar to #link(<importance-sampling>)[IS]
-
-Note that when we use $pi$, we mean $pi_theta$ here, and
-$nabla$ means $nabla_theta$.
-
-About PG:
-
-- Goal: we want to find good policy.
-- Value-based RL is indirect
-- PG isn't based on value function
-  - It's possible a good policy don't match Bellman Equation.
+where $A^pi(s,a) = Q^pi(s,a) - V^pi(s)$. The baseline does not change the *expectation* of the gradient but lowers its *variance*, leading to more stable training.
